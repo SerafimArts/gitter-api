@@ -11,6 +11,7 @@
 namespace Gitter\Iterators;
 
 
+use Gitter\Iterators\PromiseIterator\IteratorWrapper;
 use React\Promise\PromiseInterface;
 use Gitter\Iterators\PromiseIterator\Controls;
 
@@ -29,6 +30,11 @@ class PromiseIterator
      * @var int
      */
     protected $current = 0;
+
+    /**
+     * @var int
+     */
+    protected $index = 0;
 
     /**
      * PromiseIterator constructor.
@@ -51,11 +57,24 @@ class PromiseIterator
         if ($promise instanceof PromiseInterface) {
             $promise
                 ->then(function ($data) use ($callback) {
-                    $controls = new Controls($this->current, function () use ($callback) {
-                        $this->fetch($callback);
-                    });
+                    if ($data instanceof \Iterator) {
+                        foreach ($data as $index => $item) {
+                            $next = false;
 
-                    $callback($data, $controls);
+                            $callback($item, new Controls($this->index++, function () use ($data, &$next) {
+                                $next = true;
+                            }));
+
+                            if (!$next) { break; }
+                        }
+
+                        $this->fetch($callback);
+
+                    } else {
+                        $callback($data, new Controls($this->index++, function () use ($callback) {
+                            $this->fetch($callback);
+                        }));
+                    }
                 });
         }
     }
@@ -65,7 +84,7 @@ class PromiseIterator
      */
     public function rewind()
     {
-        $this->current = 0;
+        $this->index = $this->current = 0;
         return $this;
     }
 }

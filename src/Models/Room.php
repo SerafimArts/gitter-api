@@ -61,21 +61,23 @@ class Room extends AbstractModel
     }
 
     /**
+     * @param null $count
      * @return PromiseIterator
      */
-    public function getUsers()
+    public function getUsers($count = null) : PromiseIterator
     {
-        return new PromiseIterator(function($index) {
-            $page     = 50;
-            $count    = (int)$this->userCount;
+        $perPage = 50;
 
-            if ($index * $page > $count) {
+        return new PromiseIterator(function($index) use ($perPage, $count) {
+            $count    = $count ?: (int)$this->userCount;
+
+            if ($index * $perPage > $count) {
                 return null;
             }
 
             $response = $this->client
                 ->createRequest()
-                ->get('rooms/{id}/users', ['id' => $this->id, 'skip' => $index * $page]);
+                ->get('rooms/{id}/users', ['id' => $this->id, 'skip' => $index * $perPage, 'limit' => $perPage]);
 
             return $this->client->wrapResponse($response, function ($response) {
                 foreach ($response as $item) {
@@ -102,32 +104,35 @@ class Room extends AbstractModel
     }
 
     /**
-     * @return \Generator
-     * @TODO
+     * @return PromiseIterator
      */
-    public function getMessages() : \Generator
+    public function getMessages() : PromiseIterator
     {
         $lastMessageId  = null;
         $limit          = 100;
+        $count          = $limit;
 
-        yield from (new Fiber())
-            ->fetch(function($skip) use ($limit, &$lastMessageId) {
-                $instance       = null;
-                $args           = ($lastMessageId === null)
-                    ? ['id' => $this->id, 'limit' => $limit]
-                    : ['id' => $this->id, 'limit' => $limit, 'beforeId' => $lastMessageId];
 
-                // If last messages chin less than $limit atop an iteration
-                if(!!($skip % $limit)) { return []; }
+        return new PromiseIterator(function($skip) use (&$lastMessageId, &$count, $limit) {
+            $args = ($lastMessageId === null)
+                ? ['id' => $this->id, 'limit' => $limit]
+                : ['id' => $this->id, 'limit' => $limit, 'beforeId' => $lastMessageId];
 
-                // Get [N..N+$limit] messages
-                $messages       = $this->client
-                    ->createRequest()
-                    ->get('rooms/{id}/chatMessages', $args)
-                    ->toArray();
+            // Get [N..N+$limit] messages
+            $response = $this->client
+                ->createRequest()
+                ->get('rooms/{id}/chatMessages', $args);
+
+            if ($count < $limit) {
+                return null;
+            }
+
+            return $this->client->wrapResponse($response, function($response) use (&$count, &$lastMessageId) {
+                $instance = null;
 
                 // Reverse messages history
-                $messages = array_reverse($messages);
+                $messages = array_reverse($response);
+                $count    = count($messages);
 
                 // Format message and create a generator
                 foreach ($messages as $message) {
@@ -135,11 +140,11 @@ class Room extends AbstractModel
                     yield $instance;
                 }
 
-                // Applies last message id for next iteration tick
                 if ($instance) {
                     $lastMessageId = $instance->id;
                 }
             });
+        });
     }
 
     /**

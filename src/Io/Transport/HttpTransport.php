@@ -54,11 +54,13 @@ class HttpTransport implements TransportInterface
      */
     public function send(Request $request) : GitterResponse
     {
-        $client = (new HttpClient())->create($this->loop, $this->dnsResolver);
-        $headers = $this->makeHeaders($request);
-        $stream = new GitterResponse();
-        $body = $request->getBody();
-        $url = $request->getUrl()->build();
+        $client     = (new HttpClient())->create($this->loop, $this->dnsResolver);
+        $headers    = $this->makeHeaders($request);
+        $stream     = new GitterResponse();
+        $body       = $request->getBody();
+        $url        = $request->getUrl()->build();
+
+        var_dump($url);
 
         $connection = $client->request($request->getMethod(), $url, $headers, '1.1');
 
