@@ -1,10 +1,7 @@
 {
     "name": "serafim/gitter-api",
-    "description": "Gitter php 7 API",
-    "keywords": [
-        "framework",
-        "laravel"
-    ],
+    "description": "Gitter React API",
+    "keywords": [ "gitter", "api", "async" ],
     "license": "MIT",
     "type": "library",
     "require": {
