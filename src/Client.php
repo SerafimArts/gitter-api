@@ -18,6 +18,7 @@ use Gitter\Io\Transport;
 use Gitter\Models\Room;
 use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
 
 /**
  * Class Client
@@ -68,9 +69,9 @@ class Client
     }
 
     /**
-     * @return \Generator
+     * @return PromiseInterface
      */
-    public function getRooms() : \Generator
+    public function getRooms() : PromiseInterface
     {
         return $this->wrapResponse(
             $this->request->get('rooms'),
@@ -85,9 +86,9 @@ class Client
 
     /**
      * @param string $roomId
-     * @return Room|int
+     * @return PromiseInterface
      */
-    public function getRoomById(string $roomId)
+    public function getRoomById(string $roomId) : PromiseInterface
     {
         return $this->wrapResponse(
             $this->request->get('rooms/{id}', ['id' => $roomId]),
@@ -97,9 +98,9 @@ class Client
 
     /**
      * @param string $roomUri Room uri like "gitterhq/sandbox"
-     * @return \React\Promise\Promise|\React\Promise\PromiseInterface
+     * @return PromiseInterface
      */
-    public function getRoomByUri(string $roomUri)
+    public function getRoomByUri(string $roomUri) : PromiseInterface
     {
         return $this->wrapResponse(
             $this->request->post('rooms', [], ['uri' => $roomUri]),
@@ -110,14 +111,17 @@ class Client
     /**
      * @param Response $response
      * @param \Closure $resolver
-     * @return \React\Promise\Promise|\React\Promise\PromiseInterface
+     * @return PromiseInterface
      */
-    public function wrapResponse(Response $response, \Closure $resolver)
+    public function wrapResponse(Response $response, \Closure $resolver) : PromiseInterface
     {
         $deferred = new Deferred();
 
         try {
             $response
+                ->chunk(function($chunk) use ($deferred) {
+                    $deferred->notify($chunk);
+                })
                 ->json(function($data) use ($deferred, $resolver) {
                     $deferred->resolve(
                         call_user_func($resolver, $data)

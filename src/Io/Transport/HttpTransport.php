@@ -54,30 +54,29 @@ class HttpTransport implements TransportInterface
      */
     public function send(Request $request) : GitterResponse
     {
-        $client           = (new HttpClient())->create($this->loop, $this->dnsResolver);
-        $headers          = $this->makeHeaders($request);
-        $stream           = new GitterResponse();
-        $body             = $request->getBody();
-        $url              = $request->getUrl()->build();
-
+        $client = (new HttpClient())->create($this->loop, $this->dnsResolver);
+        $headers = $this->makeHeaders($request);
+        $stream = new GitterResponse();
+        $body = $request->getBody();
+        $url = $request->getUrl()->build();
 
         $connection = $client->request($request->getMethod(), $url, $headers, '1.1');
 
-        $connection->on('response', function(Response $response) use ($stream) {
-            $response->on('error', function(\Throwable $e) use ($stream) {
+        $connection->on('response', function (Response $response) use ($stream) {
+            $response->on('error', function (\Throwable $e) use ($stream) {
                 $stream->reject($e);
             });
 
-            $response->on('data', function($data, Response $response) use ($stream) {
+            $response->on('data', function ($data, Response $response) use ($stream) {
                 $stream->update((string)$data);
             });
         });
 
-        $connection->on('error', function(\Throwable $e) use ($stream) {
+        $connection->on('error', function (\Throwable $e) use ($stream) {
             $stream->reject($e);
         });
 
-        $connection->on('end', function() use ($stream) {
+        $connection->on('end', function () use ($stream) {
             $stream->resolve($stream);
         });
 
@@ -100,7 +99,7 @@ class HttpTransport implements TransportInterface
         ];
 
         // If request is stream use keep-alive connection
-        if ($request->isStream()){
+        if ($request->isStream()) {
             $headers['Connection'] = 'Keep-Alive';
         }
 

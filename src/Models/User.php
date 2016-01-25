@@ -9,7 +9,10 @@
  * file that was distributed with this source code.
  */
 namespace Gitter\Models;
+
+
 use Gitter\Client;
+use React\Promise\PromiseInterface;
 
 /**
  * Class User
@@ -32,62 +35,66 @@ class User extends AbstractModel
 {
     /**
      * @param Client $client
-     * @return User
-     * @TODO
+     * @return PromiseInterface
      */
-    public static function current(Client $client)
+    public static function current(Client $client) : PromiseInterface
     {
-        $response = $client->createRequest()->get('user');
-        return new User($client, $response->getJson());
+        return $client->wrapResponse(
+            $client->createRequest()->get('user'),
+            function($response) use ($client) {
+                return new User($client, $response);
+            }
+        );
     }
 
     /**
-     * @return \Generator|Room[]
-     * @TODO
+     * @return PromiseInterface
      */
-    public function getRooms() : \Generator
+    public function getRooms() : PromiseInterface
     {
         $response = $this->client
             ->createRequest()
             ->get('user/{id}/rooms', ['id' => $this->id]);
 
-        foreach ($response as $item) {
-            yield new Room($this->client, $item);
-        }
+        return $this->client->wrapResponse($response, function($response) {
+            foreach ($response as $item) {
+                yield new Room($this->client, $item);
+            }
+        });
     }
 
     /**
-     * @return \Generator|Room[]
-     * @TODO
+     * @return PromiseInterface
      */
-    public function getOrganizations() : \Generator
+    public function getOrganizations() : PromiseInterface
     {
         $response = $this->client
             ->createRequest()
             ->get('user/{id}/orgs', ['id' => $this->id]);
 
-        foreach ($response as $item) {
-            yield new Room($this->client, $item);
-        }
+        return $this->client->wrapResponse($response, function($response) {
+            foreach ($response as $item) {
+                yield new Room($this->client, $item);
+            }
+        });
     }
 
     /**
-     * @return Room|null
-     * @TODO
+     * @return PromiseInterface
      */
-    public function getPersonalRoom()
+    public function getPersonalRoom() : PromiseInterface
     {
         return $this->client->getRoomByUri($this->username);
     }
 
     /**
      * @param $text
-     * @return Message
-     * @TODO
+     * @return PromiseInterface
      */
-    public function sendMessage($text) : Message
+    public function sendMessage($text) : PromiseInterface
     {
-        $room = $this->getPersonalRoom();
-        return $room->sendMessage($text);
+        return $this->getPersonalRoom()->then(function(Room $room) use ($text) {
+            $room->sendMessage($text);
+        });
     }
 }

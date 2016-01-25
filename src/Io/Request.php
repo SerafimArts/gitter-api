@@ -73,7 +73,9 @@ class Request implements RequestInterface
      */
     public function withBody($content) : RequestInterface
     {
-        if (!is_string($content)) {
+        if (!$content) {
+            $content = '';
+        } else if (!is_string($content)) {
             $content = json_encode($content);
         }
         $this->body = $content;
@@ -124,7 +126,7 @@ class Request implements RequestInterface
      */
     public function getBody() : string
     {
-        return $this->body;
+        return $this->body ?: '';
     }
 
     /**
