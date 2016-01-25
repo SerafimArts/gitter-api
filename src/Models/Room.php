@@ -12,13 +12,8 @@ namespace Gitter\Models;
 
 use Carbon\Carbon;
 use Gitter\Client;
-use Gitter\Support\Fiber;
-use Gitter\Http\Stream\Connection;
-use Gitter\Support\PromiseIterator;
-use React\EventLoop\LoopInterface;
-use Gitter\Http\Stream\StreamConnectionException;
-use React\Promise\Promise;
 use React\Promise\PromiseInterface;
+use Gitter\Iterators\PromiseIterator;
 
 /**
  * Class Room
