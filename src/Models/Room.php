@@ -16,6 +16,7 @@ use Gitter\Support\Fiber;
 use Gitter\Http\Stream\Connection;
 use React\EventLoop\LoopInterface;
 use Gitter\Http\Stream\StreamConnectionException;
+use React\Promise\PromiseInterface;
 
 /**
  * Class Room
@@ -82,18 +83,19 @@ class Room extends AbstractModel
     }
 
     /**
-     * @return \Generator
-     * @TODO
+     * @return PromiseInterface
      */
-    public function getChannels() : \Generator
+    public function getChannels() : PromiseInterface
     {
         $response = $this->client
             ->createRequest()
             ->get('rooms/{id}/channels', ['id' => $this->id]);
 
-        foreach ($response as $item) {
-            yield new Room($this->client, $item);
-        }
+        $this->client->wrapResponse($response, function($response) {
+            foreach ($response as $item) {
+                yield new Room($this->client, $item);
+            }
+        });
     }
 
     /**
@@ -139,18 +141,17 @@ class Room extends AbstractModel
 
     /**
      * @param $text
-     * @return Message
-     * @TODO
+     * @return PromiseInterface
      */
-    public function sendMessage($text) : Message
+    public function sendMessage($text) : PromiseInterface
     {
         $response = $this->client
             ->createRequest()
-            ->post('rooms/{id}/chatMessages', ['id' => $this->id], [
-                'body' => json_encode(['text' => (string)$text])
-            ]);
+            ->post('rooms/{id}/chatMessages', ['id' => $this->id], ['text' => (string)$text]);
 
-        return new Message($this->client, $this, $response->getJson());
+        $this->client->wrapResponse($response, function($response) {
+            return new Message($this->client, $this, $response);
+        });
     }
 
 
@@ -194,6 +195,7 @@ class Room extends AbstractModel
                 ->send(
                     $transport
                         ->request('GET', $url, ['id' => $this->id])
+                        ->withDomain(Client::GITTER_STREAM_API_DOMAIN)
                         ->asStream(true)
                 )
                 ->json(function ($data) use ($callback) {
