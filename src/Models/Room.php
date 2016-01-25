@@ -12,6 +12,7 @@ namespace Gitter\Models;
 
 use Carbon\Carbon;
 use Gitter\Client;
+use Gitter\Io\Transport;
 use React\Promise\PromiseInterface;
 use Gitter\Iterators\PromiseIterator;
 
@@ -166,9 +167,9 @@ class Room extends AbstractModel
     /**
      * @param \Closure $callback
      * @param \Closure $error
-     * @return Room
+     * @return Transport
      */
-    public function onMessage(\Closure $callback, \Closure $error = null) : Room
+    public function onMessage(\Closure $callback, \Closure $error = null) : Transport
     {
         return $this->stream('rooms/{id}/chatMessages', $callback, $error);
     }
@@ -176,9 +177,9 @@ class Room extends AbstractModel
     /**
      * @param \Closure $callback
      * @param \Closure $error
-     * @return Room
+     * @return Transport
      */
-    public function onEvent(\Closure $callback, \Closure $error = null) : Room
+    public function onEvent(\Closure $callback, \Closure $error = null) : Transport
     {
         return $this->stream('rooms/{id}/events', $callback, $error);
     }
@@ -187,9 +188,9 @@ class Room extends AbstractModel
      * @param $url
      * @param \Closure $callback
      * @param \Closure|null $error
-     * @return Room
+     * @return Transport
      */
-    protected function stream($url, \Closure $callback, \Closure $error = null) : Room
+    protected function stream($url, \Closure $callback, \Closure $error = null) : Transport
     {
         if ($error === null) {
             $error = function(\Throwable $e) {
@@ -197,8 +198,9 @@ class Room extends AbstractModel
             };
         }
 
+        $transport = $this->client->createRequest();
+
         try {
-            $transport = $this->client->createRequest();
             $transport
                 ->send(
                     $transport
@@ -218,6 +220,6 @@ class Room extends AbstractModel
             $error($e);
         }
 
-        return $this;
+        return $transport;
     }
 }

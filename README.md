@@ -17,15 +17,13 @@ $promise->then(function($rooms) {
 
 
 // Room taken by gitter id like "560281040fc9f982beb1908a"
-$promise = $client->getRoomById(....);
-$promise->then(function(Gitter\Model\Room $room) {
+$client->getRoomById(....)->then(function(Gitter\Model\Room $room) {
     //
 });
 
 
 // Room taken by name like "LaravelRUS/GitterBot"
-$promise = $client->getRoomByUri(....);
-$promise->then(function(Gitter\Model\Room $room) {
+$client->getRoomByUri(....)->then(function(Gitter\Model\Room $room) {
     //
 });
 
@@ -75,8 +73,7 @@ $iterator->fetch(function(Gitter\Model\User $user, Gitter\Iterators\PromiseItera
 
 
 // All subrooms (channels)
-$promise = $room->getChannels();
-$promise->then(function(Gitter\Model\Room $channels) {
+$room->getChannels()->then(function(Gitter\Model\Room $channels) {
     foreach ($channels as $channel) {
         $channel; // Gitter\Model\Room object
     }
@@ -84,8 +81,7 @@ $promise->then(function(Gitter\Model\Room $channels) {
 
 
 // All messages in room (from latest to oldest order)
-$iterator = $room->getMessages(); // returns Gitter\Iterators\PromiseIterator
-$iterator->fetch(function(Gitter\Model\Message $message, Gitter\Iterators\PromiseIterator\Controls $controls) {
+$room->getMessages()->fetch(function(Gitter\Model\Message $message, Gitter\Iterators\PromiseIterator\Controls $controls) {
     $message; // Gitter\Model\Message object
 
     $controls->index(); // Message index
@@ -126,9 +122,9 @@ $user->getRooms()->then(function($rooms) {
 
 
 // All orgs of target user
-$user->getOrganizations()->then(function($rooms) {
-    foreach ($rooms as $room) {
-        $room; // Gitter\Model\Room object
+$user->getOrganizations()->then(function($orgs) {
+    foreach ($orgs as $org) {
+        $org; // Gitter\Model\Room object
     }
 });
 
@@ -187,7 +183,7 @@ $loop = \React\EventLoop\Factory::create();
 $client->getRoomById(GITTER_ROOM_ID)->then(function(Room $room) {
 
     // Listen messages events
-    $room->onMessage($loop, function(Message $message) {
+    $room->onMessage(function(Message $message) {
         $message; // Gitter\Model\Message object
     }, function(Throwable $error) {
         $error;
@@ -195,7 +191,7 @@ $client->getRoomById(GITTER_ROOM_ID)->then(function(Room $room) {
 
 
     // Listen activity events
-    $room->onEvent($loop, function(Message $message) {
+    $room->onEvent(function(Message $message) {
         $message; // Gitter\Model\Message object
     }, function(Throwable $error) {
         $error;
