@@ -60,6 +60,8 @@ class HttpTransport implements TransportInterface
         $body = $request->getBody();
         $url = $request->getUrl()->build();
 
+        var_dump($url);
+
         $connection = $client->request($request->getMethod(), $url, $headers, '1.1');
 
         $connection->on('response', function (Response $response) use ($stream) {

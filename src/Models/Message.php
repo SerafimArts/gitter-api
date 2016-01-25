@@ -48,7 +48,7 @@ class Message extends AbstractModel
         $this->set('sent',      new Carbon($this->get('send')));
         $this->set('editedAt',  new Carbon($this->get('editedAt', $this->get('send'))));
         $this->set('fromUser',  new User($this->client, $this->get('fromUser')));
-        $this->set('urls',      array_map(function($data) { return $data->url ?? $data; }, $this->get('urls')));
+        $this->set('urls',      array_map(function($data) { return $data->url ?? $data; }, $this->get('urls', [])));
     }
 
     /**

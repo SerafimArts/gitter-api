@@ -14,8 +14,10 @@ use Carbon\Carbon;
 use Gitter\Client;
 use Gitter\Support\Fiber;
 use Gitter\Http\Stream\Connection;
+use Gitter\Support\PromiseIterator;
 use React\EventLoop\LoopInterface;
 use Gitter\Http\Stream\StreamConnectionException;
+use React\Promise\Promise;
 use React\Promise\PromiseInterface;
 
 /**
@@ -64,22 +66,28 @@ class Room extends AbstractModel
     }
 
     /**
-     * @return \Generator
-     * @TODO
+     * @return PromiseIterator
      */
-    public function getUsers() : \Generator
+    public function getUsers()
     {
-        yield from (new Fiber())
-            ->limit((int)$this->userCount)
-            ->fetch(function ($skip) {
-                $response = $this->client
-                    ->createRequest()
-                    ->get('rooms/{id}/users', ['id' => $this->id, 'skip' => $skip]);
+        return new PromiseIterator(function($index) {
+            $page     = 50;
+            $count    = (int)$this->userCount;
 
+            if ($index * $page > $count) {
+                return null;
+            }
+
+            $response = $this->client
+                ->createRequest()
+                ->get('rooms/{id}/users', ['id' => $this->id, 'skip' => $index * $page]);
+
+            return $this->client->wrapResponse($response, function ($response) {
                 foreach ($response as $item) {
                     yield new User($this->client, $item);
                 }
             });
+        });
     }
 
     /**
