@@ -3,21 +3,34 @@
 ### Client API
 
 ```php
-$client = new Gitter\Client(PERSONAL_GITTER_TOKEN);
+$loop   = React\EventLoop\Factory::create();
+$client = new Gitter\Client($loop, PERSONAL_GITTER_TOKEN);
 
 
 // All rooms available for client
-$rooms = $client->getRooms(); // returns Generator
-foreach ($rooms as $room) {
-    $room; // Gitter\Model\Room object
-}
+$promise = $client->getRooms(); // React\Promise\PromiseInterface
+$promise->then(function($rooms) {
+    foreach ($rooms as $room) {
+        $room; // Gitter\Model\Room object
+    }
+});
+
 
 // Room taken by gitter id like "560281040fc9f982beb1908a"
-$room = $client->getRoomById(....); // returns Gitter\Model\Room object or null
+$promise = $client->getRoomById(....);
+$promise->then(function(Gitter\Model\Room $room) {
+    //
+});
+
 
 // Room taken by name like "LaravelRUS/GitterBot"
-$room = $client->getRoomByUri(....); // returns Gitter\Model\Room object or null
+$promise = $client->getRoomByUri(....);
+$promise->then(function(Gitter\Model\Room $room) {
+    //
+});
 
+
+$loop->run();
 ```
 
 ### Room API
@@ -52,25 +65,36 @@ object(Gitter\Models\Room) (16) {
 $room; // Gitter\Model\Room object
 
 // All users inside room
-$users = $room->getUsers(); // returns Generator
-foreach ($users as $user) {
+$iterator = $room->getUsers(); // returns Gitter\Iterators\PromiseIterator
+$iterator->fetch(function(Gitter\Model\User $user, Gitter\Iterators\PromiseIterator\Controls $controls) {
     $user; // Gitter\Model\User object
-}
 
-// All room subrooms (channels)
-$channels = $room->getChannels(); // returns Generator
-foreach ($channels as $channel) {
-    $channel; // Gitter\Model\Room object
-}
+    $controls->index(); // User index
+    $controls->next(); // Continue and fetch next user
+});
+
+
+// All subrooms (channels)
+$promise = $room->getChannels();
+$promise->then(function(Gitter\Model\Room $channels) {
+    foreach ($channels as $channel) {
+        $channel; // Gitter\Model\Room object
+    }
+});
+
 
 // All messages in room (from latest to oldest order)
-$messages = $room->getMessages(); // returns Generator
-foreach ($messages as $message) {
+$iterator = $room->getMessages(); // returns Gitter\Iterators\PromiseIterator
+$iterator->fetch(function(Gitter\Model\Message $message, Gitter\Iterators\PromiseIterator\Controls $controls) {
     $message; // Gitter\Model\Message object
-}
+
+    $controls->index(); // Message index
+    $controls->next(); // Continue and fetch next message
+});
+
 
 // Send message inside room
-$room->sendMessage('Hello world'); // returns Gitter\Model\Message object
+$room->sendMessage('Hello world'); // returns React\Promise\PromiseInterface with Gitter\Model\Message object response
 ```
 
 ### User API
@@ -94,22 +118,27 @@ object(Gitter\Models\User) (8) {
 $user; // Gitter\Model\User object
 
 // All rooms of target user
-$rooms = $user->getRooms(); // returns Generator
-foreach ($rooms as $room) {
-    $room; // Gitter\Model\Room object
-}
+$user->getRooms()->then(function($rooms) {
+    foreach ($rooms as $room) {
+        $room; // Gitter\Model\Room object
+    }
+});
+
 
 // All orgs of target user
-$rooms = $user->getOrganizations(); // returns Generator
-foreach ($rooms as $room) {
-    $room; // Gitter\Model\Room object
-}
+$user->getOrganizations()->then(function($rooms) {
+    foreach ($rooms as $room) {
+        $room; // Gitter\Model\Room object
+    }
+});
+
 
 // Personal one2one room
-$pm = $user->getPersonalRoom(); // returns Gitter\Model\Room object
+$promise = $user->getPersonalRoom(); // returns React\Promise\PromiseInterface with Gitter\Model\Room object
+
 
 // Send personal message to user
-$user->sendMessage('Hello world'); // returns Gitter\Model\Message object
+$promise = $user->sendMessage('Hello world'); // returns React\Promise\PromiseInterface with Gitter\Model\Message object
 ```
 
 ### Message API
@@ -147,7 +176,7 @@ object(Gitter\Models\Message) (14) {
 $message; // Gitter\Model\Message object
 
 // Update message text
-$message->update('New text'); // returns Gitter\Model\Message object
+$message->update('New text'); // returns React\Promise\PromiseInterface with Gitter\Model\Message object
 ```
 
 ### Streaming API
@@ -155,22 +184,23 @@ $message->update('New text'); // returns Gitter\Model\Message object
 ```php
 $loop = \React\EventLoop\Factory::create();
 
-$room = $client->getRoomById(GITTER_ROOM_ID);
+$client->getRoomById(GITTER_ROOM_ID)->then(function(Room $room) {
+
+    // Listen messages events
+    $room->onMessage($loop, function(Message $message) {
+        $message; // Gitter\Model\Message object
+    }, function(Throwable $error) {
+        $error;
+    });
 
 
-// Listen messages events
-$room->onMessage($loop, function(Message $message) {
-    $message; // Gitter\Model\Message object
-}, function(Throwable $error) {
-    $error;
-});
+    // Listen activity events
+    $room->onEvent($loop, function(Message $message) {
+        $message; // Gitter\Model\Message object
+    }, function(Throwable $error) {
+        $error;
+    });
 
-
-// Listen activity events
-$room->onEvent($loop, function(Message $message) {
-    $message; // Gitter\Model\Message object
-}, function(Throwable $error) {
-    $error;
 });
 
 $loop->run();
