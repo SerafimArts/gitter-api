@@ -1,0 +1,21 @@
+{
+    "name": "serafim/gitter-api",
+    "description": "Gitter php 7 API",
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": ">=7.0",
+        "illuminate/support": "5.*",
+        "nesbot/carbon": "1.*",
+        "react/http-client": "^0.4.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gitter\\": "src"
+        }
+    }
+}
