@@ -136,25 +136,25 @@ class Room extends AbstractModel
             }
 
             return $this->client->wrapResponse($response, function($messages)
-                use ($order, &$count, &$lastMessageId) {
-                    $instance = null;
+            use ($order, &$count, &$lastMessageId) {
+                $instance = null;
 
-                    // Reverse messages history
-                    if ($order === static::MESSAGE_FETCH_DESC) {
-                        $messages = array_reverse($messages);
-                    }
-                    $count    = count($messages);
+                // Reverse messages history
+                if ($order === static::MESSAGE_FETCH_DESC) {
+                    $messages = array_reverse($messages);
+                }
+                $count    = count($messages);
 
-                    // Format message and create a generator
-                    foreach ($messages as $message) {
-                        $instance = new Message($this->client, $this, $message);
-                        yield $instance;
-                    }
+                // Format message and create a generator
+                foreach ($messages as $message) {
+                    $instance = new Message($this->client, $this, $message);
+                    yield $instance;
+                }
 
-                    if ($instance) {
-                        $lastMessageId = $instance->id;
-                    }
-                });
+                if ($instance) {
+                    $lastMessageId = $instance->id;
+                }
+            });
         });
     }
 
@@ -220,8 +220,14 @@ class Room extends AbstractModel
                         ->asStream(true)
                 )
                 ->json(function ($data) use ($callback) {
-                    $message = new Message($this->client, $this, $data);
-                    $callback($message);
+                    if (
+                        is_object($data) &&
+                        $data instanceof \stdClass &&
+                        property_exists($data, 'text')
+                    ) {
+                        $message = new Message($this->client, $this, $data);
+                        $callback($message);
+                    }
                 })
                 ->error(function (\Throwable $e) use ($error) {
                     $error($e);

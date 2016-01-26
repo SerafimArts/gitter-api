@@ -76,7 +76,7 @@ class JsonBuffer
      */
     public function flush()
     {
-        if (trim($this->data) && trim($this->data) !== '[]') {
+        if (trim($this->data)) {
             $result = json_decode($this->data);
 
             if (json_last_error() === JSON_ERROR_NONE) {
