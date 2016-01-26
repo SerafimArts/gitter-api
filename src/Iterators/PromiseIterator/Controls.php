@@ -29,12 +29,12 @@ class Controls
     /**
      * Controls constructor.
      * @param $current
-     * @param \Closure $callback
+     * @param \Closure|null $callback
      */
-    public function __construct($current, \Closure $callback)
+    public function __construct($current, \Closure $callback = null)
     {
-        $this->callback = $callback;
-        $this->current = $current;
+        $this->callback = $callback ?: (function(){});
+        $this->current  = $current;
     }
 
     /**
