@@ -16,6 +16,7 @@ use Gitter\Io\Request;
 use Gitter\Io\Response;
 use Gitter\Io\Transport;
 use Gitter\Models\Room;
+use Gitter\Models\User;
 use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
@@ -82,6 +83,14 @@ class Client
             }
         );
 
+    }
+
+    /**
+     * @return PromiseInterface
+     */
+    public function getCurrentUser() : PromiseInterface
+    {
+        return User::current($this);
     }
 
     /**
