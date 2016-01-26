@@ -42,6 +42,9 @@ class User extends AbstractModel
         return $client->wrapResponse(
             $client->createRequest()->get('user'),
             function($response) use ($client) {
+                if (is_array($response)) {
+                    $response = $response[0];
+                }
                 return new User($client, $response);
             }
         );
