@@ -123,10 +123,10 @@ class Client
                     $deferred->notify($chunk);
                 })
                 ->json(function($data) use ($deferred, $resolver) {
-                    if (!property_exists($data, 'error')) {
-                        $deferred->resolve(call_user_func($resolver, $data));
-                    } else {
+                    if (is_object($data) && property_exists($data, 'error')) {
                         $deferred->reject(new \RuntimeException($data->error));
+                    } else {
+                        $deferred->resolve(call_user_func($resolver, $data));
                     }
                 })
                 ->error(function(\Throwable $e) use ($deferred) {
