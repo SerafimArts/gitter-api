@@ -76,9 +76,8 @@ class JsonBuffer
      */
     public function flush(): \StdClass
     {
-        if ($this->data) {
+        if (trim($this->data) && trim($this->data) !== '[]') {
             $result = json_decode($this->data);
-            $this->data = '';
 
             if (json_last_error() === JSON_ERROR_NONE) {
                 foreach ($this->callbacks as $callback) {
@@ -87,7 +86,7 @@ class JsonBuffer
             }
         }
 
-        return new \StdClass;
+        $this->data = '';
     }
 
     /**
