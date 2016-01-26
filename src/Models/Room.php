@@ -169,7 +169,7 @@ class Room extends AbstractModel
             ->createRequest()
             ->post('rooms/{id}/chatMessages', ['id' => $this->id], ['text' => (string)$text]);
 
-        $this->client->wrapResponse($response, function($response) {
+        return $this->client->wrapResponse($response, function($response) {
             return new Message($this->client, $this, $response);
         });
     }
