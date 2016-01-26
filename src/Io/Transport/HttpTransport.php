@@ -18,6 +18,7 @@ use Gitter\Io\Support\StringBuffer;
 use Gitter\Io\Response as GitterResponse;
 use React\HttpClient\Factory as HttpClient;
 use React\Dns\Resolver\Factory as DnsResolver;
+use React\SocketClient\ConnectionException;
 
 
 /**
@@ -63,6 +64,15 @@ class HttpTransport implements TransportInterface
         $connection = $client->request($request->getMethod(), $url, $headers, '1.1');
 
         $connection->on('response', function (Response $response) use ($stream) {
+            if ($response->getCode() >= 400) {
+                return $stream->reject(
+                    new ConnectionException(
+                        'External server return status code ' . $response->getCode(),
+                        $response->getCode()
+                    )
+                );
+            }
+
             $response->on('error', function (\Throwable $e) use ($stream) {
                 $stream->reject($e);
             });
