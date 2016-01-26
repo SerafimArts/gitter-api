@@ -45,6 +45,9 @@ use Gitter\Iterators\PromiseIterator;
  */
 class Room extends AbstractModel
 {
+    const MESSAGE_FETCH_ASC     = 'afterId';
+    const MESSAGE_FETCH_DESC    = 'beforeId';
+
     /**
      * Room constructor.
      * @param Client $client
@@ -104,20 +107,24 @@ class Room extends AbstractModel
     }
 
     /**
-     * @param null $beforeId
+     * @param string|null $messageId
+     * @param string $order
      * @return PromiseIterator
      */
-    public function getMessages($beforeId = null) : PromiseIterator
+    public function getMessages(string $messageId = null, string $order = self::MESSAGE_FETCH_DESC) : PromiseIterator
     {
-        $lastMessageId  = $beforeId;
+        $order          = ($order === static::MESSAGE_FETCH_ASC)
+            ? static::MESSAGE_FETCH_ASC
+            : static::MESSAGE_FETCH_DESC;
+        $lastMessageId  = $messageId;
         $limit          = 100;
         $count          = $limit;
 
 
-        return new PromiseIterator(function($skip) use (&$lastMessageId, &$count, $limit) {
+        return new PromiseIterator(function($skip) use (&$lastMessageId, &$count, $limit, $order) {
             $args = ($lastMessageId === null)
                 ? ['id' => $this->id, 'limit' => $limit]
-                : ['id' => $this->id, 'limit' => $limit, 'beforeId' => $lastMessageId];
+                : ['id' => $this->id, 'limit' => $limit, $order => $lastMessageId];
 
             // Get [N..N+$limit] messages
             $response = $this->client
@@ -128,25 +135,29 @@ class Room extends AbstractModel
                 return null;
             }
 
-            return $this->client->wrapResponse($response, function($response) use (&$count, &$lastMessageId) {
-                $instance = null;
+            return $this->client->wrapResponse($response, function($messages)
+                use ($order, &$count, &$lastMessageId) {
+                    $instance = null;
 
-                // Reverse messages history
-                $messages = array_reverse($response);
-                $count    = count($messages);
+                    // Reverse messages history
+                    if ($order === static::MESSAGE_FETCH_DESC) {
+                        $messages = array_reverse($messages);
+                    }
+                    $count    = count($messages);
 
-                // Format message and create a generator
-                foreach ($messages as $message) {
-                    $instance = new Message($this->client, $this, $message);
-                    yield $instance;
-                }
+                    // Format message and create a generator
+                    foreach ($messages as $message) {
+                        $instance = new Message($this->client, $this, $message);
+                        yield $instance;
+                    }
 
-                if ($instance) {
-                    $lastMessageId = $instance->id;
-                }
-            });
+                    if ($instance) {
+                        $lastMessageId = $instance->id;
+                    }
+                });
         });
     }
+
 
     /**
      * @param $text
