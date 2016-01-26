@@ -10,8 +10,6 @@
  */
 namespace Gitter\Iterators;
 
-
-use Gitter\Iterators\PromiseIterator\IteratorWrapper;
 use React\Promise\PromiseInterface;
 use Gitter\Iterators\PromiseIterator\Controls;
 

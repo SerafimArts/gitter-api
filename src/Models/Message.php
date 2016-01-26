@@ -12,7 +12,6 @@ namespace Gitter\Models;
 
 use Carbon\Carbon;
 use Gitter\Client;
-use Gitter\Http\InvalidResponseException;
 
 /**
  * Class Message
@@ -21,7 +20,7 @@ use Gitter\Http\InvalidResponseException;
  * @property-read string $id
  * @property-read string $text
  * @property-read string $html
- * @property-read Carbon $send
+ * @property-read Carbon $sent
  * @property-read Carbon $editedAt
  * @property-read User $fromUser
  * @property-read bool $unread
@@ -45,8 +44,8 @@ class Message extends AbstractModel
         parent::__construct($client, $attributes);
 
         $this->set('room',      $room);
-        $this->set('sent',      new Carbon($this->get('send')));
-        $this->set('editedAt',  new Carbon($this->get('editedAt', $this->get('send'))));
+        $this->set('sent',      new Carbon($this->get('sent')));
+        $this->set('editedAt',  new Carbon($this->get('editedAt', $this->get('sent'))));
         $this->set('fromUser',  new User($this->client, $this->get('fromUser')));
         $this->set('urls',      array_map(function($data) { return $data->url ?? $data; }, $this->get('urls', [])));
     }
