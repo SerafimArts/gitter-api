@@ -130,6 +130,10 @@ class PromiseIterator implements PromiseInterface
                             $callback($e);
                         }
                     }
+                }, function(\Throwable $e) {
+                    foreach ($this->rejected as $callback) {
+                        $callback($e);
+                    }
                 });
         } else {
             foreach ($this->fulfilled as $callback) {
