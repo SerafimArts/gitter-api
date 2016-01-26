@@ -35,12 +35,27 @@ class PromiseIterator
     protected $index = 0;
 
     /**
+     * @var array|\Closure[]
+     */
+    protected $after = [];
+
+    /**
      * PromiseIterator constructor.
      * @param \Closure $next
      */
     public function __construct(\Closure $next)
     {
         $this->nextClosure = $next;
+    }
+
+    /**
+     * @param \Closure $callback
+     * @return $this
+     */
+    public function then(\Closure $callback)
+    {
+        $this->after[] = $callback;
+        return $this;
     }
 
     /**
@@ -74,7 +89,16 @@ class PromiseIterator
                         }));
                     }
                 });
+        } else {
+            $value = $promise;
+            foreach ($this->after as $callback) {
+                if ($result = $callback($value)) {
+                    $value = $result;
+                }
+            }
         }
+
+        return $this;
     }
 
     /**
