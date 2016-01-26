@@ -62,15 +62,14 @@ class Room extends AbstractModel
     }
 
     /**
-     * @param null $count
      * @return PromiseIterator
      */
-    public function getUsers($count = null) : PromiseIterator
+    public function getUsers() : PromiseIterator
     {
         $perPage = 50;
 
-        return new PromiseIterator(function($index) use ($perPage, $count) {
-            $count    = $count ?: (int)$this->userCount;
+        return new PromiseIterator(function($index) use ($perPage) {
+            $count    = (int)$this->userCount;
 
             if ($index * $perPage > $count) {
                 return null;
@@ -105,11 +104,12 @@ class Room extends AbstractModel
     }
 
     /**
+     * @param null $beforeId
      * @return PromiseIterator
      */
-    public function getMessages() : PromiseIterator
+    public function getMessages($beforeId = null) : PromiseIterator
     {
-        $lastMessageId  = null;
+        $lastMessageId  = $beforeId;
         $limit          = 100;
         $count          = $limit;
 

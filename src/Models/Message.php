@@ -26,6 +26,7 @@ use Gitter\Client;
  * @property-read bool $unread
  * @property-read int $readBy
  * @property-read array $urls
+ * @property-read array $mentions
  * @property-read array $issues
  * @property-read array $meta
  * @property-read int $v
