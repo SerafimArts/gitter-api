@@ -107,6 +107,9 @@ class PromiseIterator implements PromiseInterface
                                 }
 
                                 if (!$next) {
+                                    foreach ($this->fulfilled as $callback) {
+                                        $callback();
+                                    }
                                     return null;
                                 }
                             }
@@ -129,11 +132,8 @@ class PromiseIterator implements PromiseInterface
                     }
                 });
         } else {
-            $value = $promise;
             foreach ($this->fulfilled as $callback) {
-                if ($result = $callback($value)) {
-                    $value = $result;
-                }
+                $callback();
             }
         }
 
