@@ -107,7 +107,7 @@ class PromiseIterator implements PromiseInterface
                                 }
 
                                 if (!$next) {
-                                    break;
+                                    return null;
                                 }
                             }
 
