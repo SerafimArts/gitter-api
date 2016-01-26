@@ -72,9 +72,9 @@ class JsonBuffer
     }
 
     /**
-     * @return \StdClass
+     * @return void
      */
-    public function flush(): \StdClass
+    public function flush()
     {
         if (trim($this->data) && trim($this->data) !== '[]') {
             $result = json_decode($this->data);
