@@ -72,10 +72,6 @@ class PromiseIterator extends Promise
                                     $next = true;
                                 }));
 
-                                foreach ($this->progress as $callback) {
-                                    $callback($item, new Controls($this->index));
-                                }
-
                                 if (!$next) {
                                     $this->resolve($this);
                                     return null;
@@ -88,10 +84,6 @@ class PromiseIterator extends Promise
                             $callback($data, new Controls($this->index++, function () use ($callback) {
                                 $this->fetch($callback);
                             }));
-
-                            foreach ($this->progress as $callback) {
-                                $callback($data, new Controls($this->index));
-                            }
                         }
                     } catch (\Throwable $e) {
                         $this->reject($e);
