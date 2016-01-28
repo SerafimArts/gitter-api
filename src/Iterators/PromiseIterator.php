@@ -10,14 +10,15 @@
  */
 namespace Gitter\Iterators;
 
-use React\Promise\PromiseInterface;
+use Gitter\Promise\Promise;
+use Gitter\Promise\PromiseInterface;
 use Gitter\Iterators\PromiseIterator\Controls;
 
 /**
  * Class PromiseIterator
  * @package Gitter\Iterators
  */
-class PromiseIterator implements PromiseInterface
+class PromiseIterator extends Promise
 {
     /**
      * @var \Closure
@@ -35,42 +36,13 @@ class PromiseIterator implements PromiseInterface
     protected $index = 0;
 
     /**
-     * @var array|\Closure[]
-     */
-    protected $fulfilled = [];
-
-    /**
-     * @var array|\Closure[]
-     */
-    protected $rejected = [];
-
-    /**
-     * @var array|\Closure[]
-     */
-    protected $progress = [];
-
-    /**
      * PromiseIterator constructor.
      * @param \Closure $next
      */
     public function __construct(\Closure $next)
     {
+        parent::__construct();
         $this->nextClosure = $next;
-    }
-
-    /**
-     * @param callable|null $onFulfilled
-     * @param callable|null $onRejected
-     * @param callable|null $onProgress
-     * @return $this
-     */
-    public function then(callable $onFulfilled = null, callable $onRejected = null, callable $onProgress = null)
-    {
-        if ($onFulfilled !== null) { $this->fulfilled[] = $onFulfilled; }
-        if ($onRejected  !== null) { $this->rejected[]  = $onRejected;  }
-        if ($onProgress  !== null) { $this->progress[]  = $onProgress;  }
-
-        return $this;
     }
 
     /**
@@ -85,9 +57,7 @@ class PromiseIterator implements PromiseInterface
         try {
             $promise = $closure($this->current++, $this);
         } catch (\Throwable $e) {
-            foreach ($this->rejected as $callback) {
-                $callback($e);
-            }
+            $this->reject($e);
         }
 
         if ($promise instanceof PromiseInterface) {
@@ -107,9 +77,7 @@ class PromiseIterator implements PromiseInterface
                                 }
 
                                 if (!$next) {
-                                    foreach ($this->fulfilled as $callback) {
-                                        $callback();
-                                    }
+                                    $this->resolve($this);
                                     return null;
                                 }
                             }
@@ -126,19 +94,11 @@ class PromiseIterator implements PromiseInterface
                             }
                         }
                     } catch (\Throwable $e) {
-                        foreach ($this->rejected as $callback) {
-                            $callback($e);
-                        }
-                    }
-                }, function(\Throwable $e) {
-                    foreach ($this->rejected as $callback) {
-                        $callback($e);
+                        $this->reject($e);
                     }
                 });
         } else {
-            foreach ($this->fulfilled as $callback) {
-                $callback();
-            }
+            $this->resolve();
         }
 
         return $this;
