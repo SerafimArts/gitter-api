@@ -12,7 +12,7 @@ namespace Gitter\Models;
 
 
 use Gitter\Client;
-use React\Promise\PromiseInterface;
+use Gitter\Promise\PromiseInterface;
 
 /**
  * Class User

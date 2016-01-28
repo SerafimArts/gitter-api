@@ -17,9 +17,11 @@ use Gitter\Io\Response;
 use Gitter\Io\Transport;
 use Gitter\Models\Room;
 use Gitter\Models\User;
+use Gitter\Promise\Promise;
 use React\EventLoop\LoopInterface;
-use React\Promise\Deferred;
-use React\Promise\PromiseInterface;
+use Gitter\Promise\PromiseInterface;
+use Gitter\Handlers\EmptyErrorHandler;
+use Gitter\Handlers\ErrorHandlerInterface;
 
 /**
  * Class Client
@@ -46,19 +48,72 @@ class Client
     protected $loop;
 
     /**
+     * @var EmptyErrorHandler
+     */
+    protected $errorHandler;
+
+    /**
      * Client constructor.
      * @param LoopInterface $loop
      * @param string $token
      */
     public function __construct(LoopInterface $loop, string $token)
     {
-        $this->token   = $token;
-        $this->loop    = $loop;
-        $this->request = Transport::http($loop, function(Request $request) use ($token) {
+        $this->token        = $token;
+        $this->loop         = $loop;
+        $this->request      = Transport::http($loop, function(Request $request) use ($token) {
             return $request
                 ->withDomain(static::GITTER_HTTP_API_DOMAIN)
                 ->withToken($token);
         });
+
+        $this->errorHandler = new EmptyErrorHandler();
+
+        // Delegate promise error handler to client error handler
+        Promise::setErrorHandler(new class(function(\Throwable $e) { $this->throw($e); }) implements
+            ErrorHandlerInterface {
+                /**
+                 * @var \Closure
+                 */
+                protected $callback;
+
+                /**
+                 * Anonymous constructor.
+                 * @param \Closure $errorCallback
+                 */
+                public function __construct(\Closure $errorCallback)
+                {
+                    $this->callback = $errorCallback;
+                }
+
+                /**
+                 * @param \Throwable $e
+                 */
+                public function fire(\Throwable $e) {
+                    $closure = $this->callback;
+                    $closure($e);
+                }
+            });
+    }
+
+    /**
+     * @param ErrorHandlerInterface $handler
+     * @return $this
+     */
+    public function setErrorHandler(ErrorHandlerInterface $handler)
+    {
+        $this->errorHandler = $handler;
+        return $this;
+    }
+
+    /**
+     * @param \Throwable $e
+     * @return $this
+     */
+    public function throw(\Throwable $e)
+    {
+        $this->errorHandler->fire($e);
+        return $this;
     }
 
     /**
@@ -124,29 +179,24 @@ class Client
      */
     public function wrapResponse(Response $response, \Closure $resolver) : PromiseInterface
     {
-        $deferred = new Deferred();
+        $promise = new Promise;
 
         try {
             $response
-                ->chunk(function($chunk) use ($deferred) {
-                    $deferred->notify($chunk);
-                })
-                ->json(function($data) use ($deferred, $resolver) {
+                ->json(function($data) use ($promise, $resolver) {
                     if (is_object($data) && property_exists($data, 'error')) {
-                        $deferred->reject(new \RuntimeException($data->error));
+                        $promise->reject(new \RuntimeException($data->error));
                     } else {
-                        $deferred->resolve(call_user_func($resolver, $data));
+                        $promise->resolve(call_user_func($resolver, $data));
                     }
                 })
-                ->error(function(\Throwable $e) use ($deferred) {
-                    $deferred->reject($e);
+                ->error(function(\Throwable $e) use ($promise) {
+                    $promise->reject($e);
                 });
-
         } catch (\Throwable $e) {
-
-            $deferred->reject($e);
+            $promise->reject($e);
         }
 
-        return $deferred->promise();
+        return $promise;
     }
 }

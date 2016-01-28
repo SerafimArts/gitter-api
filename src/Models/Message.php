@@ -12,6 +12,7 @@ namespace Gitter\Models;
 
 use Carbon\Carbon;
 use Gitter\Client;
+use Gitter\Promise\PromiseInterface;
 
 /**
  * Class Message
@@ -53,9 +54,9 @@ class Message extends AbstractModel
 
     /**
      * @param $text
-     * @return Message
+     * @return PromiseInterface
      */
-    public function update($text) : Message
+    public function update($text) : PromiseInterface
     {
         $response = $this->client
             ->createRequest()

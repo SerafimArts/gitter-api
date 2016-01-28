@@ -13,7 +13,8 @@ namespace Gitter\Models;
 use Carbon\Carbon;
 use Gitter\Client;
 use Gitter\Io\Transport;
-use React\Promise\PromiseInterface;
+use Gitter\Promise\Promise;
+use Gitter\Promise\PromiseInterface;
 use Gitter\Iterators\PromiseIterator;
 
 /**
@@ -99,7 +100,7 @@ class Room extends AbstractModel
             ->createRequest()
             ->get('rooms/{id}/channels', ['id' => $this->id]);
 
-        $this->client->wrapResponse($response, function($response) {
+        return $this->client->wrapResponse($response, function($response) {
             foreach ($response as $item) {
                 yield new Room($this->client, $item);
             }
@@ -136,25 +137,25 @@ class Room extends AbstractModel
             }
 
             return $this->client->wrapResponse($response, function($messages)
-            use ($order, &$count, &$lastMessageId) {
-                $instance = null;
+                use ($order, &$count, &$lastMessageId) {
+                    $instance = null;
 
-                // Reverse messages history
-                if ($order === static::MESSAGE_FETCH_DESC) {
-                    $messages = array_reverse($messages);
-                }
-                $count    = count($messages);
+                    // Reverse messages history
+                    if ($order === static::MESSAGE_FETCH_DESC) {
+                        $messages = array_reverse($messages);
+                    }
+                    $count    = count($messages);
 
-                // Format message and create a generator
-                foreach ($messages as $message) {
-                    $instance = new Message($this->client, $this, $message);
-                    yield $instance;
-                }
+                    // Format message and create a generator
+                    foreach ($messages as $message) {
+                        $instance = new Message($this->client, $this, $message);
+                        yield $instance;
+                    }
 
-                if ($instance) {
-                    $lastMessageId = $instance->id;
-                }
-            });
+                    if ($instance) {
+                        $lastMessageId = $instance->id;
+                    }
+                });
         });
     }
 
@@ -178,37 +179,30 @@ class Room extends AbstractModel
     /**
      * @param \Closure $callback
      * @param \Closure $error
-     * @return Transport
+     * @return PromiseInterface
      */
-    public function onMessage(\Closure $callback, \Closure $error = null) : Transport
+    public function onMessage(\Closure $callback, \Closure $error = null) : PromiseInterface
     {
-        return $this->stream('rooms/{id}/chatMessages', $callback, $error);
+        return $this->stream('rooms/{id}/chatMessages')->then($callback, $error);
     }
 
     /**
      * @param \Closure $callback
      * @param \Closure $error
-     * @return Transport
+     * @return PromiseInterface
      */
-    public function onEvent(\Closure $callback, \Closure $error = null) : Transport
+    public function onEvent(\Closure $callback, \Closure $error = null) : PromiseInterface
     {
-        return $this->stream('rooms/{id}/events', $callback, $error);
+        return $this->stream('rooms/{id}/events')->then($callback, $error);
     }
 
     /**
      * @param $url
-     * @param \Closure $callback
-     * @param \Closure|null $error
-     * @return Transport
+     * @return PromiseInterface
      */
-    protected function stream($url, \Closure $callback, \Closure $error = null) : Transport
+    protected function stream($url) : PromiseInterface
     {
-        if ($error === null) {
-            $error = function(\Throwable $e) {
-                throw $e;
-            };
-        }
-
+        $promise   = new Promise();
         $transport = $this->client->createRequest();
 
         try {
@@ -219,24 +213,28 @@ class Room extends AbstractModel
                         ->withDomain(Client::GITTER_STREAM_API_DOMAIN)
                         ->asStream(true)
                 )
-                ->json(function ($data) use ($callback) {
+                ->json(function ($data) use ($promise) {
                     if (
                         is_object($data) &&
                         $data instanceof \stdClass &&
                         property_exists($data, 'text')
                     ) {
-                        $message = new Message($this->client, $this, $data);
-                        $callback($message);
+                        try {
+                            $message = new Message($this->client, $this, $data);
+                            $promise->resolve($message);
+                        } catch (\Throwable $e) {
+                            $promise->reject($e);
+                        }
                     }
                 })
-                ->error(function (\Throwable $e) use ($error) {
-                    $error($e);
+                ->error(function (\Throwable $e) use ($promise) {
+                    $promise->reject($e);
                 });
 
         } catch (\Throwable $e) {
-            $error($e);
+            $promise->reject($e);
         }
 
-        return $transport;
+        return $promise;
     }
 }
