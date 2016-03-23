@@ -258,3 +258,29 @@ List of Gitter channels nested under the current user.
 ```php
 $client->http->getUserChannels(string $userId) : Promise;
 ```
+
+### Request iterators
+
+Some api requests has a pagination, like this:
+
+```php
+$usersPage1 = $client->http->getRoomUsers($roomId, ['limit' => 30, 'skip' => 0])->wait();
+$usersPage2 = $client->http->getRoomUsers($roomId, ['limit' => 30, 'skip' => 30])->wait();
+// ...
+```
+
+This is terrible! But you can use iterator for this task, as example:
+
+```php
+$allUsers = new Gitter\Support\ApiIterator(function ($page) use ($client, $room) {
+    return $client->http->getRoomUsers($room, ['limit' => 30, 'skip' => 30 * $page])->wait();
+});
+
+foreach ($allUsers as $user) {
+  // ...
+}
+```
+
+ApiIterator contains a lazy iterator (generator) for iterate under items chain. After iterator array will end ApiIterator call your constructor closure again with page + 1. If it return empty array - iteration will end. 
+
+Thats all. Enjoy!
