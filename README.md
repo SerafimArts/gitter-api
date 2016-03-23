@@ -42,10 +42,9 @@ $result = Amp\wait($promise);
 ##### List rooms the current user is in
 
 All the parameters are optional:
-- q: Search query
+- args: 
+    - q: Search query
 
-- param: array $args
-- return: Promise
 
 ```php
 $client->http->getRooms([array $args]) : Promise;
@@ -53,14 +52,14 @@ $client->http->getRooms([array $args]) : Promise;
 
 ##### List of users currently in the room
 
-All the parameters are optional:
-- q: Search query
-- skip: Skip n users.
-- limit: maximum number of users to return (default 30).
+- roomId: Room Gitter id
 
-- param: string $roomId Room id
-- param: array $args
-- return: Promise
+All the parameters are optional:
+- args: 
+    - q: Search query
+    - skip: Skip n users.
+    - limit: maximum number of users to return (default 30).
+
 
 ```php
 $client->http->getRoomUsers(string $roomId [, array $args]) : Promise;
@@ -68,8 +67,7 @@ $client->http->getRoomUsers(string $roomId [, array $args]) : Promise;
 
 ##### List of Gitter channels (rooms) nested under the specified room
 
-- param: string $roomId Room id
-- return: Promise
+- roomId: Room Gitter id
 
 ```php
 $client->http->getRoomChannels(string $roomId) : Promise;
@@ -84,8 +82,7 @@ Said URI can represent a GitHub Org, a GitHub Repo or a Gitter Channel.
 - If the room doesn't exist but the supplied URI represents a GitHub Org or GitHub Repo the user
 is an admin of, the room will be created automatically and the user added.
 
-- param: string $uri Required URI of the room you would like to join
-- return: Promise
+- uri: Required URI of the room you would like to join
 
 ```php
 $client->http->joinRoom(string $uri) : Promise;
@@ -93,8 +90,7 @@ $client->http->joinRoom(string $uri) : Promise;
 
 *Alias*
 
-- param: string $uri Room uri
-- return: Promise
+- uri: Room uri
 
 ```php
 $client->http->getRoomByUri(string $uri) : Promise;
@@ -102,8 +98,7 @@ $client->http->getRoomByUri(string $uri) : Promise;
 
 ##### Get room by id
 
-- param: string $roomId Room id
-- return: Promise
+- roomId: Room Gitter id
 
 ```php
 $client->http->getRoomById(string $roomId) : Promise;
@@ -113,9 +108,8 @@ $client->http->getRoomById(string $roomId) : Promise;
 
 This can be self-inflicted to leave the the room and remove room from your left menu.
 
-- param: string $roomId
-- param: string $userId
-- return: Promise
+- roomId: Room Gitter id
+- userId: User Gitter id
 
 ```php
 $client->http->removeUserFromRoom(string $roomId, string $userId) : Promise;
@@ -123,13 +117,13 @@ $client->http->removeUserFromRoom(string $roomId, string $userId) : Promise;
 
 ##### Update room information.
 
+- roomId: Room Gitter id
+
 Parameters:
-- topic: Room topic.
-- noindex: Whether the room is indexed by search engines
-- tags: Tags that define the room.
-- param: string $roomId Room id
-- param: array $args
-- return: Promise
+- args: 
+  - topic: Room topic.
+  - noindex: Whether the room is indexed by search engines
+  - tags: Tags that define the room.
 
 ```php
 $client->http->updateRoomInfo(string $roomId [, array $args]) : Promise;
@@ -137,8 +131,7 @@ $client->http->updateRoomInfo(string $roomId [, array $args]) : Promise;
 
 ##### Delete room
 
-- param: string $roomId Room id
-- return: Promise
+- roomId: Room Gitter id
 
 ```php
 $client->http->deleteRoom(string $roomId) : Promise;
@@ -146,17 +139,17 @@ $client->http->deleteRoom(string $roomId) : Promise;
 
 ##### List of messages in a room
 
-All the parameters are optional:
-- skip: Skip n messages
-- beforeId: Get messages before beforeId
-- afterId: Get messages after afterId
-- aroundId: Get messages around aroundId including this message
-- limit: Maximum number of messages to return
-- q: Search query
+- roomId: Room Gitter id
 
-- param: string $roomId Room id
-- param: array $args
-- return: Promise
+All the parameters are optional:
+- args: 
+    - skip: Skip n messages
+    - beforeId: Get messages before beforeId
+    - afterId: Get messages after afterId
+    - aroundId: Get messages around aroundId including this message
+    - limit: Maximum number of messages to return
+    - q: Search query
+
 
 ```php
 $client->http->getMessages(string $roomId [, array $args]) : Promise;
@@ -164,9 +157,8 @@ $client->http->getMessages(string $roomId [, array $args]) : Promise;
 
 There is also a way to retrieve a single message using its id.
 
-- param: string $roomId Room id
-- param: string $messageId Message id
-- return: Promise
+- roomId: Room Gitter id
+- messageId: Message Gitter id
 
 ```php
 $client->http->getMessage(string $roomId, string $messageId) : Promise;
@@ -174,9 +166,8 @@ $client->http->getMessage(string $roomId, string $messageId) : Promise;
 
 ##### Send a message to a room.
 
-- param: string $roomId Room id
-- param: string $text Message text
-- return: Promise
+- roomId: Room Gitter id
+- text: Message text
 
 ```php
 $client->http->sendMessage(string $roomId, string $text) : Promise;
@@ -184,10 +175,9 @@ $client->http->sendMessage(string $roomId, string $text) : Promise;
 
 ##### Update a message.
 
-- param: string $roomId Room id
-- param: string $messageId Message id
-- param: string $text Required Body of the message.
-- return: Promise
+- roomId: Room Gitter id
+- messageId: Message Gitter id
+- text: Required body of the message.
 
 ```php
 $client->http->updateMessage(string $roomId, string $messageId, string $text) : Promise;
@@ -195,16 +185,13 @@ $client->http->updateMessage(string $roomId, string $messageId, string $text) : 
 
 ##### Get the current user.
 
-- return: Promise
-
 ```php
 $client->http->getCurrentUser() : Promise;
 ```
 
 ##### Get user by id.
 
-- param: string $userId User id
-- return: Promise
+- userId: User Gitter id
 
 ```php
 $client->http->getUser(string $userId) : Promise;
@@ -212,8 +199,7 @@ $client->http->getUser(string $userId) : Promise;
 
 ##### List of Rooms the user is part of.
 
-- param: string $userId User id
-- return: Promise
+- userId: User Gitter id
 
 ```php
 $client->http->getUserRooms(string $userId) : Promise;
@@ -221,23 +207,21 @@ $client->http->getUserRooms(string $userId) : Promise;
 
 ##### Take unread items
 
-- param: string $userId
-- param: string $roomId
-- return: Promise
+- userId: User Gitter id
+- roomId: Room Gitter id
 
 ```php
 $client->http->getUserUnreadItems(string $userId, string $roomId) : Promise;
 ```
 
-##### Read unread items
+##### Mark unread items as "read"
 
 There is an additional endpoint nested under rooms that you can use to mark chat messages as read.
-Parameters:
-- chat: Array of chatIds.
-- param: string $userId User id
-- param: string $roomId Room id
-- param: array $args
-- return: Promise
+
+- userId: User Gitter id
+- roomId: Room Gitter id
+- args:
+    - chat: Array of chatIds.
 
 ```php
 $client->http->readItems(string $userId, string $roomId [, array $args]) : Promise;
@@ -246,8 +230,8 @@ $client->http->readItems(string $userId, string $roomId [, array $args]) : Promi
 ##### User's orgs
 
 List of the user's GitHub Organisations and their respective Room if available.
-- param: string $userId User id
-- return: Promise
+
+- userId: User Gitter id
 
 ```php
 $client->http->getUserOrgs(string $userId) : Promise;
@@ -259,8 +243,7 @@ List of the user's GitHub Repositories and their respective Room if available.
 
 > It'll return private repositories if the current user has granted Gitter privileges to access them.
 
-- param: string $userId User id
-- return: Promise
+- userId: User Gitter id
 
 ```php
 $client->http->getUserRepos(string $userId) : Promise;
@@ -269,8 +252,8 @@ $client->http->getUserRepos(string $userId) : Promise;
 ##### User's channels
 
 List of Gitter channels nested under the current user.
-- param: string $userId User id
-- return: Promise
+
+- userId: User Gitter id
 
 ```php
 $client->http->getUserChannels(string $userId) : Promise;
