@@ -8,7 +8,7 @@
         "php": ">=7.0",
         "illuminate/support": "5.*",
         "nesbot/carbon": "1.*",
-        "react/http-client": "^0.4.8"
+        "amphp/artax": "2.0.*"
     },
     "autoload": {
         "psr-4": {
