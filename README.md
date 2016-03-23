@@ -1,203 +1,277 @@
 # GitterApi
 
-### Client API
+### Installation
+
+- `composer require serafim/gitter-api`
+
+### Creating client
 
 ```php
-$loop   = React\EventLoop\Factory::create();
-$client = new Gitter\Client($loop, PERSONAL_GITTER_TOKEN);
-
-
-// All rooms available for client
-$promise = $client->getRooms(); // React\Promise\PromiseInterface
-$promise->then(function($rooms) {
-    foreach ($rooms as $room) {
-        $room; // Gitter\Model\Room object
-    }
-});
-
-
-// Room taken by gitter id like "560281040fc9f982beb1908a"
-$client->getRoomById(....)->then(function(Gitter\Model\Room $room) {
-    //
-});
-
-
-// Room taken by name like "LaravelRUS/GitterBot"
-$client->getRoomByUri(....)->then(function(Gitter\Model\Room $room) {
-    //
-});
-
-
-$loop->run();
+$client = new Client(string $token);
 ```
 
-### Room API
+### Sync and async methods
+
+All methods returns a Promise, like this:
 
 ```php
-// Structure example
-object(Gitter\Models\Room) (16) {
-    "id"                => string(24) "560281040fc9f982beb1908a"
-    "name"              => string(20) "LaravelRUS/GitterBot"
-    "topic"             => string(0) ""
-    "uri"               => string(20) "LaravelRUS/GitterBot"
-    "userCount"         => int(45)
-    "unreadItems"       => int(0)
-    "mentions"          => int(0)
-    "lastAccessTime"    => object(Carbon\Carbon) (3) {
-        "date"              => string(26) "2016-01-25 01:42:00.258000"
-        "timezone_type"     => int(2)
-        "timezone"          => string(1) "Z"
-    }
-    "lurk"              => bool(false)
-    "activity"          => bool(true)
-    "url"               => string(21) "/LaravelRUS/GitterBot"
-    "githubType"        => string(4) "REPO"
-    "security"          => string(6) "PUBLIC"
-    "tags"              => array(0) { ... }
-    "roomMember"        => bool(true)
-    "extra"             => object(stdClass) (0) { ... }
-}
+$client->someMethod() : Promise;
 ```
 
+Promises returns result after method was completed successfully. 
+You can stack promises and wait result:
+
 ```php
-$room; // Gitter\Model\Room object
-
-// All users inside room
-$iterator = $room->getUsers(); // returns Gitter\Iterators\PromiseIterator
-$iterator->fetch(function(Gitter\Model\User $user, Gitter\Iterators\PromiseIterator\Controls $controls) {
-    $user; // Gitter\Model\User object
-
-    $controls->index(); // User index
-    $controls->next(); // Continue and fetch next user
-});
-
-
-// All subrooms (channels)
-$room->getChannels()->then(function(Gitter\Model\Room $channels) {
-    foreach ($channels as $channel) {
-        $channel; // Gitter\Model\Room object
-    }
-});
-
-
-// All messages in room (from latest to oldest order)
-$room->getMessages()->fetch(function(Gitter\Model\Message $message, Gitter\Iterators\PromiseIterator\Controls $controls) {
-    $message; // Gitter\Model\Message object
-
-    $controls->index(); // Message index
-    $controls->next(); // Continue and fetch next message
-});
-
-
-// Send message inside room
-$room->sendMessage('Hello world'); // returns React\Promise\PromiseInterface with Gitter\Model\Message object response
+yield Amp\all([$promise1, $promise2, $promise3]);
 ```
 
-### User API
+Or using sync request:
 
 ```php
-// Structure example
-object(Gitter\Models\User) (8) {
-    "id"                => string(24) "52fcfccb5e986b0712ef71d0"
-    "username"          => string(11) "SerafimArts"
-    "displayName"       => string(17) "Kirill Nesmeyanov"
-    "url"               => string(12) "/SerafimArts"
-    "avatarUrlSmall"    => string(57) "https://avatars2.githubusercontent.com/u/2461257?v=3&s=60"
-    "avatarUrlMedium"   => string(58) "https://avatars2.githubusercontent.com/u/2461257?v=3&s=128"
-    "v"                 => int(6)
-    "gv"                => string(1) "3"
-}
+$result = $promise->wait();
 
+// Or
+
+$result = Amp\wait($promise);
 ```
 
+> Read more about requests concurrency: http://amphp.org/docs/amp/managing-concurrency.html
+
+### Http methods
+
+##### List rooms the current user is in
+
+All the parameters are optional:
+- q: Search query
+
+- param: array $args
+- return: Promise
+
 ```php
-$user; // Gitter\Model\User object
-
-// All rooms of target user
-$user->getRooms()->then(function($rooms) {
-    foreach ($rooms as $room) {
-        $room; // Gitter\Model\Room object
-    }
-});
-
-
-// All orgs of target user
-$user->getOrganizations()->then(function($orgs) {
-    foreach ($orgs as $org) {
-        $org; // Gitter\Model\Room object
-    }
-});
-
-
-// Personal one2one room
-$promise = $user->getPersonalRoom(); // returns React\Promise\PromiseInterface with Gitter\Model\Room object
-
-
-// Send personal message to user
-$promise = $user->sendMessage('Hello world'); // returns React\Promise\PromiseInterface with Gitter\Model\Message object
+$client->http->getRooms([array $args]) : Promise;
 ```
 
-### Message API
+##### List of users currently in the room
+
+All the parameters are optional:
+- q: Search query
+- skip: Skip n users.
+- limit: maximum number of users to return (default 30).
+
+- param: string $roomId Room id
+- param: array $args
+- return: Promise
 
 ```php
-// Structure example
-object(Gitter\Models\Message) (14) {
-    "id"            => string(24) "56a58030dc33b33c7547a4fa"
-    "text"          => string(9) "тест2"
-    "html"          => string(9) "тест2"
-    "sent"          => object(Carbon\Carbon) (3) {
-        "date"          => string(26) "2016-01-25 01:53:40.000000"
-        "timezone_type" => int(3)
-        "timezone"      => string(3) "UTC"
-    }
-    "fromUser"      => object(Gitter\Models\User) (8) { ... }
-    "unread"        => bool(true)
-    "readBy"        => int(0)
-    "urls"          => array(0) { ... }
-    "mentions"      => array(0) { ... }
-    "issues"        => array(0) { ... }
-    "meta"          => array(0) { ... }
-    "v"             => int(1)
-    "room"          => object(Gitter\Models\Room) (16) { ... }
-    "editedAt"      => object(Carbon\Carbon) (3) {
-        "date"          => string(26) "2016-01-25 01:53:40.000000"
-        "timezone_type" => int(3)
-        "timezone"      => string(3) "UTC"
-    }
-}
+$client->http->getRoomUsers(string $roomId [, array $args]) : Promise;
 ```
 
+##### List of Gitter channels (rooms) nested under the specified room
+
+- param: string $roomId Room id
+- return: Promise
 
 ```php
-$message; // Gitter\Model\Message object
-
-// Update message text
-$message->update('New text'); // returns React\Promise\PromiseInterface with Gitter\Model\Message object
+$client->http->getRoomChannels(string $roomId) : Promise;
 ```
 
-### Streaming API
+##### Join to room
+
+To join a room you'll need to provide a URI for it.
+
+Said URI can represent a GitHub Org, a GitHub Repo or a Gitter Channel.
+- If the room exists and the user has enough permission to access it, it'll be added to the room.
+- If the room doesn't exist but the supplied URI represents a GitHub Org or GitHub Repo the user
+is an admin of, the room will be created automatically and the user added.
+
+- param: string $uri Required URI of the room you would like to join
+- return: Promise
 
 ```php
-$loop = \React\EventLoop\Factory::create();
+$client->http->joinRoom(string $uri) : Promise;
+```
 
-$client->getRoomById(GITTER_ROOM_ID)->then(function(Room $room) {
+*Alias*
 
-    // Listen messages events
-    $room->onMessage(function(Message $message) {
-        $message; // Gitter\Model\Message object
-    }, function(Throwable $error) {
-        $error;
-    });
+- param: string $uri Room uri
+- return: Promise
 
+```php
+$client->http->getRoomByUri(string $uri) : Promise;
+```
 
-    // Listen activity events
-    $room->onEvent(function(Message $message) {
-        $message; // Gitter\Model\Message object
-    }, function(Throwable $error) {
-        $error;
-    });
+##### Get room by id
 
-});
+- param: string $roomId Room id
+- return: Promise
 
-$loop->run();
+```php
+$client->http->getRoomById(string $roomId) : Promise;
+```
+
+##### Remove a user from a room. 
+
+This can be self-inflicted to leave the the room and remove room from your left menu.
+
+- param: string $roomId
+- param: string $userId
+- return: Promise
+
+```php
+$client->http->removeUserFromRoom(string $roomId, string $userId) : Promise;
+```
+
+##### Update room information.
+
+Parameters:
+- topic: Room topic.
+- noindex: Whether the room is indexed by search engines
+- tags: Tags that define the room.
+- param: string $roomId Room id
+- param: array $args
+- return: Promise
+
+```php
+$client->http->updateRoomInfo(string $roomId [, array $args]) : Promise;
+```
+
+##### Delete room
+
+- param: string $roomId Room id
+- return: Promise
+
+```php
+$client->http->deleteRoom(string $roomId) : Promise;
+```
+
+##### List of messages in a room
+
+All the parameters are optional:
+- skip: Skip n messages
+- beforeId: Get messages before beforeId
+- afterId: Get messages after afterId
+- aroundId: Get messages around aroundId including this message
+- limit: Maximum number of messages to return
+- q: Search query
+
+- param: string $roomId Room id
+- param: array $args
+- return: Promise
+
+```php
+$client->http->getMessages(string $roomId [, array $args]) : Promise;
+```
+
+There is also a way to retrieve a single message using its id.
+
+- param: string $roomId Room id
+- param: string $messageId Message id
+- return: Promise
+
+```php
+$client->http->getMessage(string $roomId, string $messageId) : Promise;
+```
+
+##### Send a message to a room.
+
+- param: string $roomId Room id
+- param: string $text Message text
+- return: Promise
+
+```php
+$client->http->sendMessage(string $roomId, string $text) : Promise;
+```
+
+##### Update a message.
+
+- param: string $roomId Room id
+- param: string $messageId Message id
+- param: string $text Required Body of the message.
+- return: Promise
+
+```php
+$client->http->updateMessage(string $roomId, string $messageId, string $text) : Promise;
+```
+
+##### Get the current user.
+
+- return: Promise
+
+```php
+$client->http->getCurrentUser() : Promise;
+```
+
+##### Get user by id.
+
+- param: string $userId User id
+- return: Promise
+
+```php
+$client->http->getUser(string $userId) : Promise;
+```
+
+##### List of Rooms the user is part of.
+
+- param: string $userId User id
+- return: Promise
+
+```php
+$client->http->getUserRooms(string $userId) : Promise;
+```
+
+##### Take unread items
+
+- param: string $userId
+- param: string $roomId
+- return: Promise
+
+```php
+$client->http->getUserUnreadItems(string $userId, string $roomId) : Promise;
+```
+
+##### Read unread items
+
+There is an additional endpoint nested under rooms that you can use to mark chat messages as read.
+Parameters:
+- chat: Array of chatIds.
+- param: string $userId User id
+- param: string $roomId Room id
+- param: array $args
+- return: Promise
+
+```php
+$client->http->readItems(string $userId, string $roomId [, array $args]) : Promise;
+```
+
+##### User's orgs
+
+List of the user's GitHub Organisations and their respective Room if available.
+- param: string $userId User id
+- return: Promise
+
+```php
+$client->http->getUserOrgs(string $userId) : Promise;
+```
+
+##### User's repos
+
+List of the user's GitHub Repositories and their respective Room if available.
+
+> It'll return private repositories if the current user has granted Gitter privileges to access them.
+
+- param: string $userId User id
+- return: Promise
+
+```php
+$client->http->getUserRepos(string $userId) : Promise;
+```
+
+##### User's channels
+
+List of Gitter channels nested under the current user.
+- param: string $userId User id
+- return: Promise
+
+```php
+$client->http->getUserChannels(string $userId) : Promise;
 ```

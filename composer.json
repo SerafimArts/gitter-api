@@ -1,7 +1,7 @@
 {
     "name": "serafim/gitter-api",
-    "description": "Gitter React API",
-    "keywords": [ "gitter", "api", "async", "react", "client" ],
+    "description": "Gitter async api",
+    "keywords": [ "gitter", "api", "async", "react", "ardent", "client" ],
     "license": "MIT",
     "type": "library",
     "require": {
