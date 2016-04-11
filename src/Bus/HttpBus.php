@@ -378,10 +378,17 @@ class HttpBus implements Bus
      * @param array $arguments
      * @return Promise|\Amp\Promise
      * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function __call($name, array $arguments = [])
     {
-        return $this->request(Str::upper($name), ...$arguments);
+        $method = Str::upper($name);
+
+        if (!in_array($method, ['GET', 'POST', 'PUT', 'DELETE'], true)) {
+            throw new \InvalidArgumentException('Unavailable method ' . $method);
+        }
+
+        return $this->request($method, ...$arguments);
     }
 
     /**
