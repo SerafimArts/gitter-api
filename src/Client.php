@@ -12,12 +12,14 @@ namespace Gitter;
 
 use Gitter\Bus\Bus;
 use Gitter\Bus\HttpBus;
+use Gitter\Bus\StreamBus;
 
 /**
  * Class Client
  * @package Gitter
  *
  * @property-read HttpBus|Bus $http
+ * @property-read StreamBus|Bus $stream
  */
 class Client
 {
@@ -29,7 +31,12 @@ class Client
     /**
      * @var HttpBus
      */
-    private $http;
+    private $http = null;
+
+    /**
+     * @var StreamBus
+     */
+    private $stream = null;
 
     /**
      * Client constructor.
@@ -38,7 +45,6 @@ class Client
     public function __construct(string $token)
     {
         $this->token = $token;
-        $this->http = new HttpBus($this);
     }
 
     /**
@@ -51,13 +57,23 @@ class Client
 
     /**
      * @param $field
-     * @return Bus|HttpBus
+     * @return Bus|HttpBus|StreamBus
      * @throws \LogicException
      */
     public function __get($field)
     {
-        if ($field === 'http') {
-            return $this->http;
+        switch ($field) {
+            case 'http':
+                if ($this->http === null) {
+                    $this->http = new HttpBus($this);
+                }
+                return $this->http;
+
+            case 'stream':
+                if ($this->stream === null) {
+                    $this->stream = new StreamBus($this);
+                }
+                return $this->stream;
         }
 
         throw new \LogicException('Field ' . $field . ' not found in ' . static::class);

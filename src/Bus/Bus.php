@@ -24,12 +24,4 @@ interface Bus
      * @param Client $client
      */
     public function __construct(Client $client);
-
-    /**
-     * @param $name
-     * @param array $arguments
-     * @return Promise|\Amp\Promise
-     * @throws \RuntimeException
-     */
-    public function __call($name, array $arguments = []);
 }
