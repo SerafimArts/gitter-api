@@ -10,8 +10,10 @@
  */
 namespace Gitter\Bus;
 
+use Amp\Artax\Client as Artax;
 use Gitter\Client;
 use Gitter\Http\Promise;
+use Gitter\Http\Request;
 use Illuminate\Support\Str;
 
 /**
@@ -34,11 +36,17 @@ class HttpBus implements Bus
     private $client;
 
     /**
+     * @var Artax
+     */
+    private $artax;
+
+    /**
      * Bus constructor.
      * @param Client $client
      */
     public function __construct(Client $client)
     {
+        $this->artax = new Artax;
         $this->client = $client;
     }
 
@@ -101,6 +109,17 @@ class HttpBus implements Bus
     }
 
     /**
+     * Alias
+     *
+     * @param string $uri Room uri
+     * @return Promise
+     */
+    public function getRoomByUri(string $uri)
+    {
+        return $this->joinRoom($uri);
+    }
+
+    /**
      * To join a room you'll need to provide a URI for it.
      * Said URI can represent a GitHub Org, a GitHub Repo or a Gitter Channel.
      *  - If the room exists and the user has enough permission to access it, it'll be added to the room.
@@ -113,17 +132,6 @@ class HttpBus implements Bus
     public function joinRoom(string $uri)
     {
         return $this->post('rooms', [], ['uri' => $uri]);
-    }
-
-    /**
-     * Alias
-     *
-     * @param string $uri Room uri
-     * @return Promise
-     */
-    public function getRoomByUri(string $uri)
-    {
-        return $this->joinRoom($uri);
     }
 
     /**
@@ -257,7 +265,7 @@ class HttpBus implements Bus
             'roomId'    => $roomId,
             'messageId' => $messageId,
         ], [
-            'text' => $text
+            'text' => $text,
         ]);
     }
 
@@ -373,6 +381,29 @@ class HttpBus implements Bus
      */
     public function __call($name, array $arguments = [])
     {
-        return $this->client->request(Str::upper($name), ...$arguments);
+        return $this->request(Str::upper($name), ...$arguments);
+    }
+
+    /**
+     * @param $method
+     * @param $url
+     * @param array $args
+     * @param null $body
+     * @return Promise|\Amp\Promise
+     * @throws \RuntimeException
+     */
+    public function request($method, $url, array $args = [], $body = null)
+    {
+        return $this->artax($url, $args)->wrap($method, $body);
+    }
+
+    /**
+     * @param $url
+     * @param array $args
+     * @return Request
+     */
+    private function artax($url, array $args = [])
+    {
+        return (new Request($this->client, $this->artax))->to($url, $args);
     }
 }

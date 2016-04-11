@@ -10,6 +10,8 @@
  */
 namespace Gitter\Http;
 
+
+use Amp\Artax\Client as Artax;
 use Amp\Artax\Request as OriginalRequest;
 use Amp\Artax\Response as OriginalResponse;
 use Gitter\Client;
@@ -41,11 +43,18 @@ class Request
     private $body;
 
     /**
+     * @var Artax
+     */
+    private $artax;
+
+    /**
      * Request constructor.
      * @param Client $client
+     * @param Artax $artax
      */
-    public function __construct(Client $client)
+    public function __construct(Client $client, Artax $artax)
     {
+        $this->artax = $artax;
         $this->client = $client;
         $this->original = new OriginalRequest;
         $this->uri = new Uri;
@@ -156,9 +165,7 @@ class Request
             ->setAllHeaders($headers)
             ->setMethod($method);
 
-        return $this->client
-            ->getArtaxClient()
-            ->request($request);
+        return $this->artax->request($request);
     }
 
     /**

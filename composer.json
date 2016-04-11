@@ -8,7 +8,10 @@
         "php": ">=7.0",
         "illuminate/support": "5.*",
         "nesbot/carbon": "1.*",
-        "amphp/artax": "2.0.*"
+        "amphp/artax": "2.0.*",
+        "react/react": "^0.4.2",
+        "react/socket-client": "^0.4.4",
+        "react/http-client": "^0.4.6"
     },
     "autoload": {
         "psr-4": {
