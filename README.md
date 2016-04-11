@@ -281,6 +281,10 @@ foreach ($allUsers as $user) {
 }
 ```
 
-ApiIterator contains a lazy iterator (generator) for iterate under items chain. After iterator array will end ApiIterator call your constructor closure again with page + 1. If it return empty array - iteration will end. 
+RequestIterator contains a lazy iterator (generator) for iterate under items chain. 
+After iterator array will end RequestIterator call your constructor closure again with page + 1. 
+If it return empty array - iteration will end. 
+
+> This iterator already implemented in http requests (`getMessagesIterator` and `getRoomUsersIterator` methods)
 
 Thats all. Enjoy!

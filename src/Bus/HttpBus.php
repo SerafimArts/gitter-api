@@ -14,6 +14,7 @@ use Amp\Artax\Client as Artax;
 use Gitter\Client;
 use Gitter\Http\Promise;
 use Gitter\Http\Request;
+use Gitter\Support\RequestIterator;
 use Illuminate\Support\Str;
 
 /**
@@ -95,6 +96,18 @@ class HttpBus implements Bus
         }
 
         return $this->get('rooms/{roomId}/users', array_merge(['roomId' => $roomId], $args));
+    }
+
+    /**
+     * @param string $roomId
+     * @return RequestIterator
+     * @throws \Exception
+     */
+    public function getRoomUsersIterator(string $roomId)
+    {
+        return new RequestIterator(function($page) use ($roomId) {
+            return $this->getRoomUsers($roomId, ['limit' => 30, 'skip' => 30 * $page])->wait();
+        });
     }
 
     /**
@@ -220,6 +233,32 @@ class HttpBus implements Bus
         return $this->get('rooms/{roomId}/chatMessages', array_merge([
             'roomId' => $roomId,
         ], $args));
+    }
+
+    /**
+     * @param string $roomId
+     * @param int $chain
+     * @return RequestIterator
+     */
+    public function getMessagesIterator(string $roomId, int $chain = 100)
+    {
+        $lastMessageId  = null;
+
+        return new RequestIterator(function($page) use ($roomId, $chain, &$lastMessageId) {
+            $query = ['limit' => $chain];
+
+            if ($lastMessageId !== null) {
+                $query['beforeId'] = $lastMessageId;
+            }
+
+            $result = $this->getMessages($roomId, $query)->wait();
+
+            if (count($result) > 0) {
+                $lastMessageId = $result[0]->id;
+            }
+
+            return $result;
+        });
     }
 
     /**
