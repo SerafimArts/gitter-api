@@ -13,14 +13,13 @@ namespace Gitter\Bus;
 use Gitter\Client;
 use Gitter\Http\JsonBuffer;
 use Gitter\Http\Uri;
-use GuzzleHttp\Tests\Psr7\Str;
 use React\Dns\Resolver\Factory as DnsResolver;
 use React\Dns\Resolver\Resolver;
 use React\EventLoop\Factory as EventLoop;
 use React\EventLoop\LoopInterface;
-use React\HttpClient\Request;
 use React\HttpClient\Client as ReactClient;
 use React\HttpClient\Factory as HttpClient;
+use React\HttpClient\Request;
 use React\HttpClient\Response;
 
 /**
@@ -50,7 +49,7 @@ class StreamBus implements Bus
      * @var ReactClient
      */
     private $react;
-    
+
     /**
      * StreamBus constructor.
      * @param Client $client
@@ -179,7 +178,7 @@ class StreamBus implements Bus
     /**
      * @return void
      */
-    public function run()
+    public function listen()
     {
         $this->getEventLoop()->run();
     }

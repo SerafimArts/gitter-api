@@ -288,3 +288,33 @@ If it return empty array - iteration will end.
 > This iterator already implemented in http requests (`getMessagesIterator` and `getRoomUsersIterator` methods)
 
 Thats all. Enjoy!
+
+
+### Events
+
+For launch event listening you must start event loop (`listen` method) after all observers declaration:
+
+```php
+// ...
+// Some code of event observers here
+// ...
+
+$client->stream->listen();
+```
+
+
+##### When a new message has been received
+
+Subscribe on new messages
+
+```php
+$client->stream->onMessage(string $roomId, \Closure $callback) : StreamBus;
+```
+
+##### When a new event has been received
+
+Subscribe on new room\channel events
+
+```php
+$client->stream->onEvent(string $roomId, \Closure $callback) : StreamBus;
+```
