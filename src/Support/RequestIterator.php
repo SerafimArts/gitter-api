@@ -11,10 +11,10 @@
 namespace Gitter\Support;
 
 /**
- * Class ApiIterator
+ * Class RequestIterator
  * @package Gitter
  */
-class ApiIterator implements \IteratorAggregate
+class RequestIterator implements \IteratorAggregate
 {
     /**
      * @var \Closure

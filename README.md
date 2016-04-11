@@ -272,7 +272,7 @@ $usersPage2 = $client->http->getRoomUsers($roomId, ['limit' => 30, 'skip' => 30]
 This is terrible! But you can use iterator for this task, as example:
 
 ```php
-$allUsers = new Gitter\Support\ApiIterator(function ($page) use ($client, $room) {
+$allUsers = new Gitter\Support\RequestIterator(function ($page) use ($client, $room) {
     return $client->http->getRoomUsers($room, ['limit' => 30, 'skip' => 30 * $page])->wait();
 });
 
