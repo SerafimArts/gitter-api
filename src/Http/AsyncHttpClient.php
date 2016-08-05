@@ -22,16 +22,11 @@ use React\HttpClient\Factory as RequestFactory;
  * Class AsyncHttpClient
  * @package Gitter\Connection
  */
-class AsyncHttpClient implements HttpClientInterface
+class AsyncHttpClient extends AbstractHttpClient
 {
     use LoggerAwareTrait;
 
     const HOST = 'https://api.gitter.im/{version}/';
-
-    /**
-     * @var Client
-     */
-    private $client;
 
     /**
      * @var \React\Dns\Resolver\Resolver
@@ -44,33 +39,18 @@ class AsyncHttpClient implements HttpClientInterface
     private $io;
 
     /**
-     * @var array
-     */
-    private $defaults = [
-        'version' => 'v1'
-    ];
-
-    /**
-     * @var array
-     */
-    private $headers = [
-        'Accept'         => 'application/json',
-        'Content-Type'   => 'application/json'
-    ];
-
-    /**
      * AsyncHttpClient constructor.
      * @param Client $client
      * @param LoggerInterface $logger
      */
     public function __construct(Client $client, LoggerInterface $logger)
     {
-        $this->client = $client;
-        $this->setLogger($logger);
+        parent::__construct($client, $logger);
 
-        $this
-            ->setDnsResolver((new DnsFactory)->create('8.8.8.8', $client->getLoop()))
-            ->setAccessToken($client->getToken());
+        $this->setDnsResolver(
+            (new DnsFactory)
+                ->create('8.8.8.8', $client->getLoop())
+        );
     }
 
     /**
@@ -84,28 +64,6 @@ class AsyncHttpClient implements HttpClientInterface
             ->create($this->client->getLoop(), $this->dns);
 
         return $this;
-    }
-
-    /**
-     * @param string $token
-     * @return $this|HttpClientInterface
-     */
-    public function setAccessToken(string $token) : HttpClientInterface
-    {
-        $this->headers['Authorization'] = sprintf('Bearer %s', $token);
-        return $this;
-    }
-
-    /**
-     * @param string $url
-     * @param array $parameters
-     * @return Route
-     */
-    public function route(string $url, array $parameters = []) : Route
-    {
-        $parameters = array_merge($this->defaults, $parameters);
-
-        return (new Route(static::HOST . $url))->withMany($parameters);
     }
 
     /**
@@ -131,15 +89,7 @@ class AsyncHttpClient implements HttpClientInterface
             $request->write($content);
         }
 
-        if ($this->logger) {
-            $this->logger->info(
-                $method . ' ' . $route->make() . "\n" .
-                '    Headers: ' . "\n" .
-                    json_encode($headers, JSON_PRETTY_PRINT) . "\n" .
-                '    Body: ' . "\n" .
-                    ($body ? $content : 'null')
-            );
-        }
+        $this->logRequest($method, $route, $headers, $body);
 
         $request->on('response', function (Response $response) use ($deferred) {
             $buffer = '';

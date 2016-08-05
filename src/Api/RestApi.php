@@ -9,7 +9,6 @@ namespace Gitter\Api;
 
 use Gitter\Client;
 use Gitter\Url\Route;
-use Gitter\Support\RequestIterator;
 use Gitter\Http\HttpClientInterface;
 
 /**

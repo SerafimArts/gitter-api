@@ -7,11 +7,23 @@
  */
 namespace Gitter\Http;
 
+use Gitter\Support\Fiber;
+use Gitter\Url\Route;
+
 /**
  * Class HttpClient
  * @package Gitter\Http
  */
 class HttpClient extends AsyncHttpClient
 {
-
+    /**
+     * @param Route $route
+     * @param string $method
+     * @param array $body
+     * @return Fiber
+     */
+    public function request(Route $route, $method = 'GET', array $body = [])
+    {
+        //
+    }
 }
