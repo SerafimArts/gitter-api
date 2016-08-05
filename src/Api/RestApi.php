@@ -1,72 +1,106 @@
 <?php
 /**
- * This file is part of GitterAPI package.
- *
- * @author Serafim <nesk@xakep.ru>
- * @date 01.03.2016 19:06
+ * This file is part of dsp-178 package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace Gitter\Bus;
+namespace Gitter\Api;
 
-use Amp\Artax\Client as Artax;
 use Gitter\Client;
-use Gitter\Http\Promise;
-use Gitter\Http\Request;
+use Gitter\Url\Route;
 use Gitter\Support\RequestIterator;
-use Illuminate\Support\Str;
+use Gitter\Http\HttpClientInterface;
 
 /**
- * Class HttpBus
- * @package Gitter\Bus
- *
- * @since 1.0 https://developer.gitter.im/docs/rest-api
- *
- * @method Promise get(string $url, array $args = [], $body = null)
- * @method Promise post(string $url, array $args = [], $body = null)
- * @method Promise put(string $url, array $args = [], $body = null)
- * @method Promise delete(string $url, array $args = [], $body = null)
- *
+ * Class RestApi
+ * @package Gitter\Api
  */
-class HttpBus implements Bus
+class RestApi implements ApiInterface
 {
     /**
      * @var Client
      */
+    private $gitter;
+
+    /**
+     * @var HttpClientInterface
+     */
     private $client;
 
     /**
-     * @var Artax
+     * HttpConnection constructor.
+     * @param Client $gitter
+     * @param HttpClientInterface $client
      */
-    private $artax;
+    public function __construct(Client $gitter, HttpClientInterface $client)
+    {
+        $this->gitter = $gitter;
+        $this->client = $client;
+    }
 
     /**
-     * Bus constructor.
-     * @param Client $client
+     * @param string $url
+     * @param array $parameters
+     * @return Route
      */
-    public function __construct(Client $client)
+    private function route(string $url, array $parameters = []) : Route
     {
-        $this->artax = new Artax;
-        $this->client = $client;
+        return $this->client->route($url, $parameters);
+    }
+
+    /**
+     * @param string $url
+     * @param array $parameters
+     * @return mixed
+     */
+    private function get(string $url, array $parameters = [])
+    {
+        return $this->client->request($this->route($url, $parameters));
+    }
+
+    /**
+     * @param string $url
+     * @param array $parameters
+     * @param array $body
+     * @return mixed
+     */
+    private function post(string $url, array $parameters = [], array $body = [])
+    {
+        return $this->client->request($this->route($url, $parameters), 'POST', $body);
+    }
+
+    /**
+     * @param string $url
+     * @param array $parameters
+     * @param array $body
+     * @return mixed
+     */
+    private function put(string $url, array $parameters = [], array $body = [])
+    {
+        return $this->client->request($this->route($url, $parameters), 'PUT', $body);
+    }
+
+    /**
+     * @param string $url
+     * @param array $parameters
+     * @param array $body
+     * @return mixed
+     */
+    private function delete(string $url, array $parameters = [], array $body = [])
+    {
+        return $this->client->request($this->route($url, $parameters), 'DELETE', $body);
     }
 
     /**
      * List rooms the current user is in
      *
-     * All the parameters are optional:
-     *   - q: Search query
-     *
-     * @param array $args
-     * @return Promise
+     * @param string|null $query Search query
+     * @return mixed
      */
-    public function getRooms(array $args = []) : Promise
+    public function getRooms(string $query = null)
     {
-        if (array_key_exists('q', $args)) {
-            $args['q'] = (string)$args['q'];
-        }
-
-        return $this->get('rooms', $args);
+        return $this->get('rooms', ['q' => $query]);
     }
 
     /**
@@ -79,7 +113,7 @@ class HttpBus implements Bus
      *
      * @param string $roomId Room id
      * @param array $args
-     * @return Promise
+     * @return mixed
      */
     public function getRoomUsers(string $roomId, array $args = [])
     {
@@ -99,22 +133,10 @@ class HttpBus implements Bus
     }
 
     /**
-     * @param string $roomId
-     * @return RequestIterator
-     * @throws \Exception
-     */
-    public function getRoomUsersIterator(string $roomId)
-    {
-        return new RequestIterator(function($page) use ($roomId) {
-            return $this->getRoomUsers($roomId, ['limit' => 30, 'skip' => 30 * $page])->wait();
-        });
-    }
-
-    /**
      * List of Gitter channels (rooms) nested under the specified room
      *
      * @param string $roomId Room id
-     * @return Promise
+     * @return mixed
      */
     public function getRoomChannels(string $roomId)
     {
@@ -125,7 +147,7 @@ class HttpBus implements Bus
      * Alias
      *
      * @param string $uri Room uri
-     * @return Promise
+     * @return mixed
      */
     public function getRoomByUri(string $uri)
     {
@@ -140,7 +162,7 @@ class HttpBus implements Bus
      * is an admin of, the room will be created automatically and the user added.
      *
      * @param string $uri Required URI of the room you would like to join
-     * @return Promise
+     * @return mixed
      */
     public function joinRoom(string $uri)
     {
@@ -150,7 +172,7 @@ class HttpBus implements Bus
     /**
      * Get room by id
      * @param string $roomId Room id
-     * @return Promise
+     * @return mixed
      */
     public function getRoomById(string $roomId)
     {
@@ -162,7 +184,7 @@ class HttpBus implements Bus
      *
      * @param string $roomId
      * @param string $userId
-     * @return Promise
+     * @return mixed
      */
     public function removeUserFromRoom(string $roomId, string $userId)
     {
@@ -181,7 +203,7 @@ class HttpBus implements Bus
      *
      * @param string $roomId Room id
      * @param array $args
-     * @return Promise
+     * @return mixed
      */
     public function updateRoomInfo(string $roomId, array $args = [])
     {
@@ -204,7 +226,7 @@ class HttpBus implements Bus
      * Delete room
      *
      * @param string $roomId Room id
-     * @return Promise
+     * @return mixed
      */
     public function deleteRoom(string $roomId)
     {
@@ -226,7 +248,7 @@ class HttpBus implements Bus
      *
      * @param string $roomId Room id
      * @param array $args
-     * @return Promise
+     * @return mixed
      */
     public function getMessages(string $roomId, array $args = [])
     {
@@ -236,37 +258,11 @@ class HttpBus implements Bus
     }
 
     /**
-     * @param string $roomId
-     * @param int $chain
-     * @return RequestIterator
-     */
-    public function getMessagesIterator(string $roomId, int $chain = 100)
-    {
-        $lastMessageId  = null;
-
-        return new RequestIterator(function($page) use ($roomId, $chain, &$lastMessageId) {
-            $query = ['limit' => $chain];
-
-            if ($lastMessageId !== null) {
-                $query['beforeId'] = $lastMessageId;
-            }
-
-            $result = $this->getMessages($roomId, $query)->wait();
-
-            if (count($result) > 0) {
-                $lastMessageId = $result[0]->id;
-            }
-
-            return $result;
-        });
-    }
-
-    /**
      * There is also a way to retrieve a single message using its id.
      *
      * @param string $roomId Room id
      * @param string $messageId Message id
-     * @return Promise
+     * @return mixed
      */
     public function getMessage(string $roomId, string $messageId)
     {
@@ -281,7 +277,7 @@ class HttpBus implements Bus
      *
      * @param string $roomId Room id
      * @param string $text Message text
-     * @return Promise
+     * @return mixed
      */
     public function sendMessage(string $roomId, string $text)
     {
@@ -296,7 +292,7 @@ class HttpBus implements Bus
      * @param string $roomId Room id
      * @param string $messageId Message id
      * @param string $text Required Body of the message.
-     * @return Promise
+     * @return mixed
      */
     public function updateMessage(string $roomId, string $messageId, string $text)
     {
@@ -311,7 +307,7 @@ class HttpBus implements Bus
     /**
      * Get the current user.
      *
-     * @return Promise
+     * @return mixed
      */
     public function getCurrentUser()
     {
@@ -322,7 +318,7 @@ class HttpBus implements Bus
      * Get user by id.
      *
      * @param string $userId User id
-     * @return Promise
+     * @return mixed
      */
     public function getUser(string $userId)
     {
@@ -335,7 +331,7 @@ class HttpBus implements Bus
      * List of Rooms the user is part of.
      *
      * @param string $userId User id
-     * @return Promise
+     * @return mixed
      */
     public function getUserRooms(string $userId)
     {
@@ -347,7 +343,7 @@ class HttpBus implements Bus
     /**
      * @param string $userId
      * @param string $roomId
-     * @return Promise
+     * @return mixed
      */
     public function getUserUnreadItems(string $userId, string $roomId)
     {
@@ -366,7 +362,7 @@ class HttpBus implements Bus
      * @param string $userId User id
      * @param string $roomId Room id
      * @param array $args
-     * @return Promise
+     * @return mixed
      */
     public function readItems(string $userId, string $roomId, array $args = [])
     {
@@ -382,7 +378,7 @@ class HttpBus implements Bus
      * List of the user's GitHub Organisations and their respective Room if available.
      *
      * @param string $userId User id
-     * @return Promise
+     * @return mixed
      */
     public function getUserOrgs(string $userId)
     {
@@ -394,7 +390,7 @@ class HttpBus implements Bus
      * Note: It'll return private repositories if the current user has granted Gitter privileges to access them.
      *
      * @param string $userId User id
-     * @return Promise
+     * @return mixed
      */
     public function getUserRepos(string $userId)
     {
@@ -405,51 +401,10 @@ class HttpBus implements Bus
      * List of Gitter channels nested under the current user.
      *
      * @param string $userId User id
-     * @return Promise
+     * @return mixed
      */
     public function getUserChannels(string $userId)
     {
         return $this->get('user/{userId}/channels', ['userId' => $userId]);
-    }
-
-    /**
-     * @param $name
-     * @param array $arguments
-     * @return Promise|\Amp\Promise
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
-     */
-    public function __call($name, array $arguments = [])
-    {
-        $method = Str::upper($name);
-
-        if (!in_array($method, ['GET', 'POST', 'PUT', 'DELETE'], true)) {
-            throw new \InvalidArgumentException('Unavailable method ' . $method);
-        }
-
-        return $this->request($method, ...$arguments);
-    }
-
-    /**
-     * @param $method
-     * @param $url
-     * @param array $args
-     * @param null $body
-     * @return Promise|\Amp\Promise
-     * @throws \RuntimeException
-     */
-    public function request($method, $url, array $args = [], $body = null)
-    {
-        return $this->artax($url, $args)->wrap($method, $body);
-    }
-
-    /**
-     * @param $url
-     * @param array $args
-     * @return Request
-     */
-    private function artax($url, array $args = [])
-    {
-        return (new Request($this->client, $this->artax))->to($url, $args);
     }
 }

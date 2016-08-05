@@ -1,81 +1,130 @@
 <?php
 /**
- * This file is part of GitterAPI package.
- *
- * @author Serafim <nesk@xakep.ru>
- * @date 01.03.2016 13:43
+ * This file is part of dsp-178 package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 namespace Gitter;
 
-use Gitter\Bus\Bus;
-use Gitter\Bus\HttpBus;
-use Gitter\Bus\StreamBus;
+use Psr\Log\NullLogger;
+use Gitter\Api\RestApi;
+use Gitter\Http\HttpClient;
+use Psr\Log\LoggerInterface;
+use Gitter\Api\ApiInterface;
+use Gitter\Http\AsyncHttpClient;
+use React\EventLoop\LoopInterface;
+use Illuminate\Container\Container;
+use React\EventLoop\Factory as LoopFactory;
 
 /**
  * Class Client
  * @package Gitter
  *
- * @property-read HttpBus|Bus $http
- * @property-read StreamBus|Bus $stream
+ * @property-read ApiInterface|RestApi $http
+ * @property-read ApiInterface|RestApi $async
  */
-class Client
+class Client extends Container
 {
+    const CONNECTION_HTTP = 'http';
+    const CONNECTION_STREAM = 'stream';
+    const CONNECTION_ASYNC = 'async';
+
     /**
      * @var string
      */
     private $token;
 
     /**
-     * @var HttpBus
+     * @var \React\EventLoop\ExtEventLoop|\React\EventLoop\LibEventLoop|\React\EventLoop\LibEvLoop|\React\EventLoop\StreamSelectLoop
      */
-    private $http = null;
+    private $loop;
 
     /**
-     * @var StreamBus
+     * @var LoggerInterface
      */
-    private $stream = null;
+    private $logger;
 
     /**
      * Client constructor.
      * @param string $token
+     * @param LoggerInterface $logger
      */
-    public function __construct(string $token)
+    public function __construct(string $token, LoggerInterface $logger = null)
     {
         $this->token = $token;
+        $this->loop  = LoopFactory::create();
+
+        if ($logger === null) {
+            $logger = new NullLogger();
+        }
+
+        $this->logger = $logger;
+
+        $this->registerCoreInstances();
+
+    }
+
+    /**
+     * @return \React\EventLoop\ExtEventLoop|\React\EventLoop\LibEventLoop|\React\EventLoop\LibEvLoop|\React\EventLoop\StreamSelectLoop
+     */
+    public function getLoop()
+    {
+        return $this->loop;
+    }
+
+    /**
+     * @return void
+     */
+    private function registerCoreInstances()
+    {
+        $this->instance(static::class, $this);
+        $this->instance(LoopInterface::class, $this->loop);
+
+        $this->instance(LoggerInterface::class, $this->logger);
+
+        $this->singleton(HttpClient::class);
+        $this->singleton(AsyncHttpClient::class);
     }
 
     /**
      * @return string
      */
-    public function getToken()
+    public function getToken() : string
     {
         return $this->token;
     }
 
     /**
-     * @param $field
-     * @return Bus|HttpBus|StreamBus
-     * @throws \LogicException
+     * @param string $key
+     * @return ApiInterface
+     * @throws \InvalidArgumentException
      */
-    public function __get($field)
+    public function __get($key)
     {
-        switch ($field) {
-            case 'http':
-                if ($this->http === null) {
-                    $this->http = new HttpBus($this);
-                }
-                return $this->http;
+        switch ($key) {
+            case static::CONNECTION_HTTP:
+                return $this->make(RestApi::class, [
+                    'client' => $this->make(HttpClient::class)
+                ]);
 
-            case 'stream':
-                if ($this->stream === null) {
-                    $this->stream = new StreamBus($this);
-                }
-                return $this->stream;
+            case static::CONNECTION_ASYNC:
+                return $this->make(RestApi::class, [
+                    'client' => $this->make(AsyncHttpClient::class)
+                ]);
+
+            //case static::CONNECTION_STREAM:
+                //return $this->make(StreamHttpConnection::class);
         }
 
-        throw new \LogicException('Field ' . $field . ' not found in ' . static::class);
+        throw new \InvalidArgumentException(sprintf('Property %s::$%s not found', static::class, $key));
+    }
+
+    /**
+     * @return void
+     */
+    public function connect()
+    {
+        $this->loop->run();
     }
 }

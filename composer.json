@@ -1,20 +1,45 @@
 {
     "name": "serafim/gitter-api",
     "description": "Gitter async api",
-    "keywords": [ "gitter", "api", "async", "react", "ardent", "client" ],
+    "keywords": [
+        "gitter",
+        "api",
+        "async",
+        "react",
+        "client"
+    ],
     "license": "MIT",
     "type": "library",
+    "authors": [
+        {
+            "name": "Nesmeyanov Kirill",
+            "email": "nesk@xakep.ru"
+        }
+    ],
     "require": {
         "php": ">=7.0",
+        "ext-sockets": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
         "illuminate/support": "5.*",
-        "amphp/artax": "2.0.*",
-        "react/react": "^0.4.2",
-        "react/socket-client": "^0.4.4",
-        "react/http-client": "^0.4.6"
+        "illuminate/container": "5.2.*",
+        "react/react": "^0.4",
+        "react/socket-client": "^0.4",
+        "react/http-client": "^0.4",
+        "serafim/evacuator": "1.*",
+        "psr/log": "1.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~5.5"
     },
     "autoload": {
         "psr-4": {
             "Gitter\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Gitter\\Tests\\": "tests"
         }
     }
 }
