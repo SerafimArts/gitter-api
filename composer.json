@@ -21,13 +21,10 @@
         "ext-sockets": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "illuminate/support": "5.*",
-        "illuminate/container": "5.2.*",
         "react/react": "^0.4",
         "react/socket-client": "^0.4",
         "react/http-client": "^0.4",
-        "serafim/evacuator": "1.*",
-        "psr/log": "1.*"
+        "monolog/monolog": "^1.21"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.5"

@@ -1,34 +1,30 @@
 <?php
 /**
- * This file is part of dsp-178 package.
+ * This file is part of GitterApi package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 namespace Gitter;
 
+use Gitter\ClientAdapter\AdapterInterface;
+use Gitter\ClientAdapter\HttpClient;
+use Monolog\Logger;
 use Psr\Log\NullLogger;
-use Gitter\Api\RestApi;
-use Gitter\Http\HttpClient;
 use Psr\Log\LoggerInterface;
-use Gitter\Api\ApiInterface;
-use Gitter\Http\AsyncHttpClient;
 use React\EventLoop\LoopInterface;
-use Illuminate\Container\Container;
 use React\EventLoop\Factory as LoopFactory;
 
 /**
  * Class Client
  * @package Gitter
- *
- * @property-read ApiInterface|RestApi $http
- * @property-read ApiInterface|RestApi $async
  */
-class Client extends Container
+class Client
 {
-    const CONNECTION_HTTP = 'http';
-    const CONNECTION_STREAM = 'stream';
-    const CONNECTION_ASYNC = 'async';
+    /**
+     * @var string
+     */
+    const VERSION = '3.0.0';
 
     /**
      * @var string
@@ -36,7 +32,7 @@ class Client extends Container
     private $token;
 
     /**
-     * @var \React\EventLoop\ExtEventLoop|\React\EventLoop\LibEventLoop|\React\EventLoop\LibEvLoop|\React\EventLoop\StreamSelectLoop
+     * @var LoopInterface
      */
     private $loop;
 
@@ -44,6 +40,11 @@ class Client extends Container
      * @var LoggerInterface
      */
     private $logger;
+
+    /**
+     * @var array|AdapterInterface[]
+     */
+    private $adapters = [];
 
     /**
      * Client constructor.
@@ -61,63 +62,43 @@ class Client extends Container
 
         $this->logger = $logger;
 
-        $this->registerCoreInstances();
-
+        $this->logger->info(sprintf('Gitter Client: %s', static::VERSION));
     }
 
     /**
-     * @return \React\EventLoop\ExtEventLoop|\React\EventLoop\LibEventLoop|\React\EventLoop\LibEvLoop|\React\EventLoop\StreamSelectLoop
+     * @return HttpClient|AdapterInterface
      */
-    public function getLoop()
+    public function http(): HttpClient
+    {
+        return $this->getAdapter(HttpClient::class, function() {
+            return new HttpClient($this);
+        });
+    }
+
+    /**
+     * @param string $message
+     * @param int $level
+     * @return void
+     */
+    public function log(string $message, int $level = Logger::INFO)
+    {
+        $this->logger->log($level, $message);
+    }
+
+    /**
+     * @return LoopInterface
+     */
+    public function loop(): LoopInterface
     {
         return $this->loop;
     }
 
     /**
-     * @return void
-     */
-    private function registerCoreInstances()
-    {
-        $this->instance(static::class, $this);
-        $this->instance(LoopInterface::class, $this->loop);
-
-        $this->instance(LoggerInterface::class, $this->logger);
-
-        $this->singleton(HttpClient::class);
-        $this->singleton(AsyncHttpClient::class);
-    }
-
-    /**
      * @return string
      */
-    public function getToken() : string
+    public function token(): string
     {
         return $this->token;
-    }
-
-    /**
-     * @param string $key
-     * @return ApiInterface
-     * @throws \InvalidArgumentException
-     */
-    public function __get($key)
-    {
-        switch ($key) {
-            case static::CONNECTION_HTTP:
-                return $this->make(RestApi::class, [
-                    'client' => $this->make(HttpClient::class)
-                ]);
-
-            case static::CONNECTION_ASYNC:
-                return $this->make(RestApi::class, [
-                    'client' => $this->make(AsyncHttpClient::class)
-                ]);
-
-            //case static::CONNECTION_STREAM:
-                //return $this->make(StreamHttpConnection::class);
-        }
-
-        throw new \InvalidArgumentException(sprintf('Property %s::$%s not found', static::class, $key));
     }
 
     /**
@@ -125,6 +106,22 @@ class Client extends Container
      */
     public function connect()
     {
+        $this->logger->info('Starting');
         $this->loop->run();
+    }
+
+    /**
+     * @param string $name
+     * @param \Closure $resolver
+     * @return AdapterInterface
+     */
+    private function getAdapter(string $name, \Closure $resolver): AdapterInterface
+    {
+        if (!array_key_exists($name, $this->adapters)) {
+            $this->logger->info(sprintf('Creating \\%s::class adapter', $name));
+            $this->adapters[$name] = $resolver();
+        }
+
+        return $this->adapters[$name];
     }
 }
