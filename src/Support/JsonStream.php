@@ -7,7 +7,7 @@
  */
 namespace Gitter\Support;
 
-use Evenement\EventEmitterTrait;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Class JsonStream
@@ -15,7 +15,20 @@ use Evenement\EventEmitterTrait;
  */
 class JsonStream
 {
-    use EventEmitterTrait;
+    /**
+     * @var int
+     */
+    const BUFFER_MAX_SIZE = 2 ** 14;
+
+    /**
+     * @var string
+     */
+    private $bufferSize = 0;
+
+    /**
+     * @var string
+     */
+    private $endsWith = ']';
 
     /**
      * @var string
@@ -23,35 +36,70 @@ class JsonStream
     private $buffer = '';
 
     /**
-     * @return void
+     * JsonStream constructor.
+     * @param int $bufferSize
      */
-    public function compile()
+    public function __construct(int $bufferSize = self::BUFFER_MAX_SIZE)
     {
-        $data = json_decode($this->buffer);
-
-        if (json_last_error() === JSON_ERROR_NONE) {
-            $this->dispose();
-            $this->emit('data', [$data]);
-        }
+        $this->bufferSize = $bufferSize;
     }
 
     /**
      * @param string $data
-     * @return $this
+     * @return \Generator
+     * @throws \OutOfBoundsException
      */
-    public function push(string $data)
+    public function push(string $data): \Generator
     {
-        $this->buffer .= $data;
-        $this->compile();
+        // Buffer are empty and input starts with "[" or "{"
+        $canBeBuffered = $this->buffer === '' && in_array($data[0], ['[', '{'], true);
 
-        return $this;
+        // Data can be starts buffering
+        if ($canBeBuffered) {
+            $this->buffer .= $data;
+            $this->endsWith = $data[0] === '[' ? ']' : '}';
+
+        // Add chunks for non empty buffer
+        } elseif ($this->buffer !== '') {
+            $this->buffer .= $data;
+
+            // Try to compile
+            if ($data[strlen($data) - 1] === $this->endsWith) {
+                $data = json_decode($this->buffer);
+
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $this->buffer;
+                    yield $data;
+                }
+            }
+        }
+
+        $this->checkSize();
     }
 
     /**
-     * @return void
+     * @throws \OutOfBoundsException
      */
-    public function dispose()
+    private function checkSize()
     {
-        $this->buffer = '';
+        if ($this->bufferSize > 0 && strlen($this->buffer) > $this->bufferSize) {
+            throw new \OutOfBoundsException(
+                sprintf('Memory leak detected . Buffer size out of %s bytes', $this->bufferSize)
+            );
+        }
+    }
+
+    /**
+     * @param StreamInterface $stream
+     * @param int $chunkSize
+     * @return \Generator
+     * @throws \OutOfBoundsException
+     * @throws \RuntimeException
+     */
+    public function stream(StreamInterface $stream, int $chunkSize = 1): \Generator
+    {
+        while (!$stream->eof()) {
+            yield from $this->push($stream->read($chunkSize));
+        }
     }
 }

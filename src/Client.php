@@ -7,19 +7,21 @@
  */
 namespace Gitter;
 
-use Gitter\ClientAdapter\AdapterInterface;
-use Gitter\ClientAdapter\HttpClient;
+use Gitter\ClientAdapter\SyncAdapter;
 use Monolog\Logger;
 use Psr\Log\NullLogger;
+use Gitter\Support\Loggable;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\LoopInterface;
+use Gitter\ClientAdapter\AdapterInterface;
+use Gitter\ClientAdapter\HttpClientAdapter;
 use React\EventLoop\Factory as LoopFactory;
 
 /**
  * Class Client
  * @package Gitter
  */
-class Client
+class Client implements Loggable
 {
     /**
      * @var string
@@ -66,23 +68,15 @@ class Client
     }
 
     /**
-     * @return HttpClient|AdapterInterface
-     */
-    public function http(): HttpClient
-    {
-        return $this->getAdapter(HttpClient::class, function() {
-            return new HttpClient($this);
-        });
-    }
-
-    /**
      * @param string $message
      * @param int $level
-     * @return void
+     * @return Loggable|$this
      */
-    public function log(string $message, int $level = Logger::INFO)
+    public function log(string $message, int $level = Logger::INFO): Loggable
     {
         $this->logger->log($level, $message);
+
+        return $this;
     }
 
     /**
@@ -112,14 +106,13 @@ class Client
 
     /**
      * @param string $name
-     * @param \Closure $resolver
      * @return AdapterInterface
      */
-    private function getAdapter(string $name, \Closure $resolver): AdapterInterface
+    public function through(string $name): AdapterInterface
     {
         if (!array_key_exists($name, $this->adapters)) {
             $this->logger->info(sprintf('Creating \\%s::class adapter', $name));
-            $this->adapters[$name] = $resolver();
+            $this->adapters[$name] = new $name($this);
         }
 
         return $this->adapters[$name];

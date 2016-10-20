@@ -66,6 +66,38 @@ class Route
     }
 
     /**
+     * @return Route
+     */
+    public function toApi(): Route
+    {
+        return $this->to('https://api.gitter.im/v1/');
+    }
+
+    /**
+     * @return Route
+     */
+    public function toStream(): Route
+    {
+        return $this->to('https://stream.gitter.im/v1/');
+    }
+
+    /**
+     * @return Route
+     */
+    public function toSocket(): Route
+    {
+        return $this->to('wss://ws.gitter.im/');
+    }
+
+    /**
+     * @return Route
+     */
+    public function toFaye(): Route
+    {
+        return $this->to('https://gitter.im/api/v1/');
+    }
+
+    /**
      * @return string
      */
     public function getRoute(): string

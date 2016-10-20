@@ -21,9 +21,8 @@
         "ext-sockets": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "react/react": "^0.4",
-        "react/socket-client": "^0.4",
-        "react/http-client": "^0.4",
+        "guzzlehttp/guzzle": "^6.2",
+        "react/event-loop": "^0.4",
         "monolog/monolog": "^1.21"
     },
     "require-dev": {
