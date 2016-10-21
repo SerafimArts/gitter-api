@@ -84,11 +84,13 @@ class BuzzAdaptersTest extends TestCase
 
             // Message incoming! Assert and shutting down
             ->subscribe(function($answer) use ($client, $message) {
-                $client->loop()->stop();
 
                 $this->assertInternalType('array', $answer);
                 $this->assertArrayHasKey('text', $answer);
-                $this->assertEquals($message, $answer['text']);
+
+                if ($message === $answer['text']) {
+                    $client->loop()->stop();
+                }
             });
 
 
