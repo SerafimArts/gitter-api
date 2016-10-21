@@ -17,18 +17,17 @@ use function GuzzleHttp\json_decode as json;
  * Class AsyncGuzzleAdapter
  * @package Gitter\ClientAdapter
  */
-class AsyncGuzzleAdapter extends GuzzleAdapter
+class AsyncGuzzleAdapter extends AbstractGuzzleAdapter implements AsyncAdapterInterface
 {
     /**
      * @param Route $route
-     * @param array $body
-     * @return PromiseInterface
+     * @return Promise|PromiseInterface
      * @throws \LogicException
      * @throws \InvalidArgumentException
      */
-    public function request(Route $route, array $body = [])
+    public function request(Route $route)
     {
-        $request = $this->prepareRequest($this->gitter->token(), $route, $body);
+        $request = $this->prepareRequest($this->gitter->token(), $route);
         $this->logRequest($request);
 
         $responsePromise = $this->client->sendAsync($request, $this->options);

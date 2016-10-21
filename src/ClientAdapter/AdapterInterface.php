@@ -8,7 +8,7 @@
 namespace Gitter\ClientAdapter;
 
 use Gitter\Route;
-use Gitter\Client;
+use Gitter\Client as Gitter;
 
 /**
  * Interface AdapterInterface
@@ -16,16 +16,19 @@ use Gitter\Client;
  */
 interface AdapterInterface
 {
+    const TYPE_SYNC     = 'sync';
+    const TYPE_ASYNC    = 'async';
+    const TYPE_STREAM   = 'stream';
+
     /**
      * AdapterInterface constructor.
-     * @param Client $client
+     * @param Gitter $gitter
      */
-    public function __construct(Client $client);
+    public function __construct(Gitter $gitter);
 
     /**
      * @param Route $route
-     * @param array $body
      * @return mixed
      */
-    public function request(Route $route, array $body = []);
+    public function request(Route $route);
 }

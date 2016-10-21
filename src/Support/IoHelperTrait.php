@@ -19,16 +19,18 @@ trait IoHelperTrait
     /**
      * @param string $token
      * @param Route $route
-     * @param array $data
      * @return Request
      * @throws \InvalidArgumentException
      */
-    protected function prepareRequest(string $token, Route $route, array $data = [])
+    protected function prepareRequest(string $token, Route $route)
     {
         $headers = $this->prepareHeaders($token);
-        $body    = $this->bodyToString($route, $data);
 
-        return new Request($route->getMethod(), $route->build(), $headers, $body, '1.1');
+        if ($route->getBody() !== null && $route->method() === 'GET') {
+            throw new \InvalidArgumentException('GET requests can not contain a body');
+        }
+
+        return new Request($route->method(), $route->build(), $headers, $route->getBody(), '1.1');
     }
 
     /**
@@ -44,22 +46,5 @@ trait IoHelperTrait
         ];
 
         return $headers;
-    }
-
-    /**
-     * @param Route $route
-     * @param array $body
-     * @return string
-     * @throws \InvalidArgumentException
-     */
-    private function bodyToString(Route $route, array $body = []): string
-    {
-        $content = count($body) ? json_encode($body) : '';
-
-        if ($content && $route->getMethod() === 'GET') {
-            throw new \InvalidArgumentException('GET requests can not contain a body');
-        }
-
-        return $content;
     }
 }

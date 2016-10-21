@@ -8,6 +8,7 @@
 namespace Gitter\Resources;
 
 use Gitter\Client;
+use Gitter\ClientAdapter\AdapterInterface;
 
 /**
  * Interface ResourceInterface
@@ -18,6 +19,7 @@ interface ResourceInterface
     /**
      * ResourceInterface constructor.
      * @param Client $client
+     * @param AdapterInterface $adapter
      */
-    public function __construct(Client $client);
+    public function __construct(Client $client, AdapterInterface $adapter);
 }

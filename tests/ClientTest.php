@@ -7,18 +7,15 @@
  */
 namespace Gitter\Tests;
 
-use Gitter\ClientAdapter\AdapterInterface;
 use Gitter\Support\Loggable;
-use Monolog\Logger;
 use React\EventLoop\LoopInterface;
 
 /**
  * Class ClientTest
  * @package Gitter\Tests
  */
-class ClientTest extends \PHPUnit_Framework_TestCase
+class ClientTest extends TestCase
 {
-    use UnitSupport;
 
     public function testTokenAccessible()
     {
@@ -33,5 +30,19 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function testLoggerAvailable()
     {
         $this->assertInstanceOf(Loggable::class, $this->client());
+    }
+
+    public function testLoopBootable()
+    {
+        $booted = false;
+
+        $loop = $this->client()->loop();
+
+        $loop->addTimer(0, function() use (&$booted) {
+            $booted = true;
+        });
+
+        $loop->run();
+        $this->assertTrue($booted);
     }
 }

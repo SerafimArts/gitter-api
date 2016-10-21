@@ -8,20 +8,15 @@
 namespace Gitter\ClientAdapter;
 
 use Gitter\Route;
-use Monolog\Logger;
-use GuzzleHttp\Client;
 use Gitter\Client as Gitter;
-use Gitter\Support\Loggable;
 use GuzzleHttp\RequestOptions;
-use Gitter\Support\IoHelperTrait;
-use Gitter\Support\IoLoggableTrait;
 use function GuzzleHttp\json_decode as json;
 
 /**
  * Class SyncGuzzleAdapter
  * @package Gitter\ClientAdapter
  */
-class SyncGuzzleAdapter extends AsyncGuzzleAdapter
+class SyncGuzzleAdapter extends AsyncGuzzleAdapter implements SyncAdapterInterface
 {
     /**
      * SyncAdapter constructor.
@@ -36,13 +31,12 @@ class SyncGuzzleAdapter extends AsyncGuzzleAdapter
 
     /**
      * @param Route $route
-     * @param array $body
      * @return mixed
      * @throws \LogicException
      * @throws \InvalidArgumentException
      */
-    public function request(Route $route, array $body = [])
+    public function request(Route $route)
     {
-        return parent::request($route, $body)->wait();
+        return parent::request($route)->wait();
     }
 }

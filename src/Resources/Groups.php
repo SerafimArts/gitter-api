@@ -7,25 +7,46 @@
  */
 namespace Gitter\Resources;
 
-use Gitter\Client;
+use Gitter\Route;
 
 /**
- * Class Groups
+ * Group schema
+ *  - id:           Group ID.
+ *  - name:         Group name.
+ *  - uri:          Group URI on Gitter.
+ *  - backedBy:     Security descriptor. Describes the backing object we get permissions from.
+ *      - type:         [null|'ONE_TO_ONE'|'GH_REPO'|'GH_ORG'|'GH_USER']
+ *      - linkPath:     Represents how we find the backing object given the type
+ *  - avatarUrl:    Base avatar URL (add s parameter to size)
+ *
  * @package Gitter\Resources
  */
-class Groups implements ResourceInterface
+class Groups extends AbstractResource
 {
-    /**
-     * @var Client
-     */
-    private $client;
+    const TYPE_ONE_TO_ONE   = 'ONE_TO_ONE';
+    const TYPE_GITHUB_REPO  = 'GH_REPO';
+    const TYPE_GITHUB_ORG   = 'GH_ORG';
+    const TYPE_GITHUB_USER  = 'GH_USER';
 
     /**
-     * Groups constructor.
-     * @param Client $client
+     * List groups the current user is in.
+     * Parameters: none
+     *
+     * @return mixed
      */
-    public function __construct(Client $client)
+    public function all()
     {
-        $this->client = $client;
+        return $this->fetch(Route::get('groups'));
+    }
+
+    /**
+     * List of rooms nested under the specified group.
+     *
+     * @param string $groupId
+     * @return mixed
+     */
+    public function rooms(string $groupId)
+    {
+        return $this->fetch(Route::get('groups/{groupId}/rooms')->with('groupId', $groupId));
     }
 }

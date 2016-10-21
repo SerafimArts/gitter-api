@@ -21,13 +21,17 @@
         "ext-sockets": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "guzzlehttp/guzzle": "^6.2",
         "react/event-loop": "^0.4",
         "clue/buzz-react": "^1.0",
+        "clue/block-react": "^1.0",
         "monolog/monolog": "^1.21"
     },
     "require-dev": {
-        "phpunit/phpunit": "~5.5"
+        "phpunit/phpunit": "~5.5",
+        "guzzlehttp/guzzle": "^6.2"
+    },
+    "suggest": {
+        "guzzlehttp/guzzle": "Version 6+ for API GuzzleHttp adapters support."
     },
     "autoload": {
         "psr-4": {

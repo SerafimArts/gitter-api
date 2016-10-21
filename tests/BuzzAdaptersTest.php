@@ -7,65 +7,64 @@
  */
 namespace Gitter\Tests;
 
-use Gitter\ClientAdapter\StreamBuzzAdapter;
 use Gitter\Route;
-use GuzzleHttp\Promise\PromiseInterface;
-use Gitter\ClientAdapter\SyncGuzzleAdapter;
-use Gitter\ClientAdapter\AsyncGuzzleAdapter;
-use Gitter\ClientAdapter\StreamGuzzleAdapter;
+use Monolog\Logger;
+use React\Promise\PromiseInterface;
+use Gitter\ClientAdapter\SyncBuzzAdapter;
+use Gitter\ClientAdapter\AsyncBuzzAdapter;
+use Gitter\ClientAdapter\StreamBuzzAdapter;
 
 /**
- * Class AdaptersTest
+ * Class BuzzAdaptersTest
  * @package Gitter\Tests
  */
-class AdaptersTest extends \PHPUnit_Framework_TestCase
+class BuzzAdaptersTest extends TestCase
 {
-    use UnitSupport;
-
-    public function testGuzzleSyncAdapter()
+    /**
+     * SYNC
+     */
+    public function testBuzzSyncAdapter()
     {
-        $response = $this->client()->through(SyncGuzzleAdapter::class)
-            ->request(Route::get('user')->toApi());
+        $response = $this->client()->through(SyncBuzzAdapter::class)
+            ->request(Route::get('user'));
 
         $this->assertInternalType('array', $response);
     }
 
-    public function testGuzzleAsyncAdapter()
+    /**
+     * ASYNC
+     */
+    public function testBuzzAsyncAdapter()
     {
+        $client = $this->client();
+
         /** @var PromiseInterface $promise */
-        $promise = $this->client()->through(AsyncGuzzleAdapter::class)
-            ->request(Route::get('user')->toApi());
+        $promise = $client->through(AsyncBuzzAdapter::class)
+            ->request(Route::get('user'));
 
         $this->assertInstanceOf(PromiseInterface::class, $promise);
 
         $promise
-            ->then(function($response) {
-                $this->assertInternalType('array', $response);
-            })
-            ->otherwise(function(\Throwable $e) {
+            ->then(function($response) use ($client, $promise) {
+                $client->loop()->stop();
+                $this->assertTrue(is_array($response));
+            }, function(\Throwable $e) {
                 $this->throwException($e);
             });
 
-        $promise->wait();
+        // Throws exception after 10 seconds timeout
+        $client->loop()->addTimer(10, function() use ($client) {
+            $client->loop()->stop();
+            $this->throwException(new \RuntimeException('Client timeout'));
+        });
+
+        $client->connect();
     }
 
-
-    public function testGuzzleStreamAdapter()
-    {
-        $client = $this->client();
-
-        $routeStream = Route::get('rooms/{roomId}/chatMessages')
-            ->with('roomId', $this->debugRoomId())
-            ->toStream();
-
-        /** @var \Generator $stream */
-        $stream = $client->through(StreamGuzzleAdapter::class)->request($routeStream);
-
-        $this->assertInstanceOf(\Generator::class, $stream);
-    }
-
-
-    public function testBuzzStreamAdapter()
+    /**
+     * STREAM
+     */
+    public function testStreamAdapter()
     {
         $client  = $this->client();
 
@@ -77,7 +76,7 @@ class AdaptersTest extends \PHPUnit_Framework_TestCase
 
         $routeAnswer = Route::post('rooms/{roomId}/chatMessages')
             ->with('roomId', $this->debugRoomId())
-            ->toApi();
+            ;
 
 
         // Connect to client
@@ -85,28 +84,28 @@ class AdaptersTest extends \PHPUnit_Framework_TestCase
 
             // Message incoming! Assert and shutting down
             ->subscribe(function($answer) use ($client, $message) {
+                $client->loop()->stop();
+
                 $this->assertInternalType('array', $answer);
                 $this->assertArrayHasKey('text', $answer);
                 $this->assertEquals($message, $answer['text']);
-
-                $client->loop()->stop();
             });
 
 
         // Send message after 1 second
         $client->loop()->addTimer(1, function() use ($message, $routeAnswer) {
-            $this->client()->through(SyncGuzzleAdapter::class)->request($routeAnswer, [
-                'text' => $message
-            ]);
+            $this->client()->through(SyncBuzzAdapter::class)
+                ->request($routeAnswer->withBody('text', $message));
         });
 
         // Throws exception after 10 seconds timeout
         $client->loop()->addTimer(10, function() use ($client) {
-            $this->throwException(new \RuntimeException('Client timeout'));
             $client->loop()->stop();
+            $this->throwException(new \RuntimeException('Client timeout'));
         });
 
         $client->connect();
     }
+
 
 }

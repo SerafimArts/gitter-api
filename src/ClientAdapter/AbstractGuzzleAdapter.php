@@ -18,10 +18,10 @@ use Gitter\Support\IoLoggableTrait;
 use function GuzzleHttp\json_decode as json;
 
 /**
- * Class GuzzleAdapter
+ * Class AbstractGuzzleAdapter
  * @package Gitter\ClientAdapter
  */
-abstract class GuzzleAdapter implements AdapterInterface, Loggable
+abstract class AbstractGuzzleAdapter implements AdapterInterface, Loggable
 {
     use IoLoggableTrait,
         IoHelperTrait;
@@ -68,15 +68,6 @@ abstract class GuzzleAdapter implements AdapterInterface, Loggable
 
         return $this;
     }
-
-    /**
-     * @param Route $route
-     * @param array $body
-     * @return mixed
-     * @throws \LogicException
-     * @throws \InvalidArgumentException
-     */
-    abstract public function request(Route $route, array $body = []);
 
     /**
      * @param string $message

@@ -44,14 +44,20 @@ class Route
     private $url;
 
     /**
+     * @var array
+     */
+    private $body = [];
+
+    /**
      * Route constructor.
      * @param string $route
      * @param string $method
      */
     public function __construct(string $route, string $method = 'GET')
     {
-        $this->route = $route;
-        $this->method = strtoupper($method);
+        $this->route($route);
+        $this->method($method);
+        $this->toApi();
     }
 
     /**
@@ -98,18 +104,28 @@ class Route
     }
 
     /**
+     * @param string|null $route
      * @return string
      */
-    public function getRoute(): string
+    public function route(string $route = null): string
     {
+        if ($route !== null) {
+            $this->route = $route;
+        }
+
         return $this->route;
     }
 
     /**
+     * @param string|null $method
      * @return string
      */
-    public function getMethod(): string
+    public function method(string $method = null): string
     {
+        if ($method !== null) {
+            $this->method = strtoupper($method);
+        }
+
         return $this->method;
     }
 
@@ -136,6 +152,29 @@ class Route
         }
 
         return $this;
+    }
+
+    /**
+     * @param string $field
+     * @param $value
+     * @return Route|$this
+     */
+    public function withBody(string $field, $value): Route
+    {
+        $this->body[$field] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getBody()
+    {
+        if (count($this->body)) {
+            return json_encode($this->body);
+        }
+        return null;
     }
 
     /**

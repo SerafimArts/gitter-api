@@ -13,12 +13,12 @@ use Gitter\Support\JsonStream;
 use GuzzleHttp\RequestOptions;
 
 /**
+ * !!! This is BLOCKING guzzle stream !!!
+ *
  * Class StreamGuzzleAdapter
  * @package Gitter\ClientAdapter
- *
- * @deprecated This is BLOCKING guzzle stream
  */
-class StreamGuzzleAdapter extends GuzzleAdapter
+class StreamGuzzleAdapter extends AbstractGuzzleAdapter implements StreamingAdapterInterface
 {
     /**
      * StreamGuzzleAdapter constructor.
@@ -35,17 +35,17 @@ class StreamGuzzleAdapter extends GuzzleAdapter
 
     /**
      * @param Route $route
-     * @param array $body
      * @return \Generator
+     * @throws \Psr\Log\InvalidArgumentException
      * @throws \RuntimeException
      * @throws \OutOfBoundsException
      * @throws \InvalidArgumentException
      */
-    public function request(Route $route, array $body = []): \Generator
+    public function request(Route $route): \Generator
     {
         $json = new JsonStream();
 
-        $request = $this->prepareRequest($this->gitter->token(), $route, $body);
+        $request = $this->prepareRequest($this->gitter->token(), $route);
         $this->logRequest($request, 'Blocking stream');
 
         yield from $json->stream($this->client->send($request, $this->options)->getBody());

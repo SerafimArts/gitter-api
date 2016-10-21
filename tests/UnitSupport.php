@@ -8,13 +8,13 @@
 namespace Gitter\Tests;
 
 use Gitter\Client;
-use Gitter\Route;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
 /**
  * Class UnitSupport
  * @package Gitter\Tests
+ * @mixin \PHPUnit_Framework_TestCase
  */
 trait UnitSupport
 {
