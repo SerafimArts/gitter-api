@@ -18,18 +18,30 @@ use Gitter\Support\IoLoggableTrait;
 use function GuzzleHttp\json_decode as json;
 
 /**
- * Class SyncAdapter
+ * Class SyncGuzzleAdapter
  * @package Gitter\ClientAdapter
  */
-final class SyncAdapter extends AsyncAdapter
+class SyncGuzzleAdapter extends AsyncGuzzleAdapter
 {
+    /**
+     * SyncAdapter constructor.
+     * @param Gitter $gitter
+     */
+    public function __construct(Gitter $gitter)
+    {
+        parent::__construct($gitter);
+
+        $this->setOption(RequestOptions::SYNCHRONOUS, true);
+    }
+
     /**
      * @param Route $route
      * @param array $body
      * @return mixed
+     * @throws \LogicException
      * @throws \InvalidArgumentException
      */
-    final public function request(Route $route, array $body = [])
+    public function request(Route $route, array $body = [])
     {
         return parent::request($route, $body)->wait();
     }

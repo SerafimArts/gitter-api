@@ -19,18 +19,6 @@ class Observer
     private $subscribers = [];
 
     /**
-     * @param \Closure $resolver
-     */
-    private function resolve(\Closure $resolver)
-    {
-        ($resolver)(function(...$args) {
-            foreach ($this->subscribers as $subscriber) {
-                $subscriber(...$args);
-            }
-        });
-    }
-
-    /**
      * @param \Closure $closure
      * @return Observer
      */
@@ -39,5 +27,15 @@ class Observer
         $this->subscribers[] = $closure;
 
         return $this;
+    }
+
+    /**
+     * @param $data
+     */
+    public function fire($data)
+    {
+        foreach ($this->subscribers as $subscriber) {
+            $subscriber($data);
+        }
     }
 }

@@ -7,13 +7,15 @@
  */
 namespace Gitter\Support;
 
+use Monolog\Logger;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class JsonStream
  * @package Gitter\Support
  */
-class JsonStream
+class JsonStream implements Loggable
 {
     /**
      * @var int
@@ -36,6 +38,16 @@ class JsonStream
     private $buffer = '';
 
     /**
+     * @var int
+     */
+    private $chunkSize = 1;
+
+    /**
+     * @var Loggable
+     */
+    private $logger;
+
+    /**
      * JsonStream constructor.
      * @param int $bufferSize
      */
@@ -45,36 +57,11 @@ class JsonStream
     }
 
     /**
-     * @param string $data
-     * @return \Generator
-     * @throws \OutOfBoundsException
+     * @param Loggable $logger
      */
-    public function push(string $data): \Generator
+    public function setLogger(Loggable $logger)
     {
-        // Buffer are empty and input starts with "[" or "{"
-        $canBeBuffered = $this->buffer === '' && in_array($data[0], ['[', '{'], true);
-
-        // Data can be starts buffering
-        if ($canBeBuffered) {
-            $this->buffer .= $data;
-            $this->endsWith = $data[0] === '[' ? ']' : '}';
-
-        // Add chunks for non empty buffer
-        } elseif ($this->buffer !== '') {
-            $this->buffer .= $data;
-
-            // Try to compile
-            if ($data[strlen($data) - 1] === $this->endsWith) {
-                $data = json_decode($this->buffer);
-
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    $this->buffer;
-                    yield $data;
-                }
-            }
-        }
-
-        $this->checkSize();
+        $this->logger = $logger;
     }
 
     /**
@@ -90,16 +77,82 @@ class JsonStream
     }
 
     /**
+     * @param string $data
+     * @param \Closure|null $callback
+     * @return mixed|null
+     * @throws \Psr\Log\InvalidArgumentException
+     */
+    public function push(string $data, \Closure $callback = null)
+    {
+        // Buffer are empty and input starts with "[" or "{"
+        $canBeBuffered = $this->buffer === '' && in_array($data[0], ['[', '{'], true);
+
+        // Data can be starts buffering
+        if ($canBeBuffered) {
+            $this->endsWith = $data[0] === '[' ? ']' : '}';
+        }
+
+        // Add chunks for non empty buffer
+        if ($canBeBuffered || $this->buffer !== '') {
+            $this->buffer .= $data;
+
+            // Try to compile
+            $trimmed = rtrim($data);
+            if ($trimmed[strlen($trimmed) - 1] === $this->endsWith) {
+                $object = json_decode($this->buffer, true);
+
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $this->buffer = '';
+
+                    if ($callback !== null) {
+                        $callback($object);
+                    }
+
+                    return $object;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param StreamInterface $stream
-     * @param int $chunkSize
      * @return \Generator
      * @throws \OutOfBoundsException
+     * @throws \Psr\Log\InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function stream(StreamInterface $stream, int $chunkSize = 1): \Generator
+    public function stream(StreamInterface $stream): \Generator
     {
         while (!$stream->eof()) {
-            yield from $this->push($stream->read($chunkSize));
+            $data = $stream->read($this->chunkSize);
+
+            $output = $this->push($data);
+            if ($output !== null) {
+                yield $output;
+            }
+
+            $this->checkSize();
         }
+    }
+
+    /**
+     * @internal
+     * @param string $message
+     * @param int $level
+     * @return Loggable
+     * @throws \Psr\Log\InvalidArgumentException
+     */
+    public function log(string $message, int $level = Logger::INFO): Loggable
+    {
+        if ($this->logger === null) {
+            file_put_contents('php://output', Logger::getLevelName($level) . ': ' . $message . "\n");
+            flush();
+        } else {
+            $this->logger->log($message, $level);
+        }
+
+        return $this;
     }
 }

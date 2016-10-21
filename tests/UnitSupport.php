@@ -19,16 +19,19 @@ use Monolog\Handler\StreamHandler;
 trait UnitSupport
 {
     /**
-     * @var string
+     * @return string
      */
-    protected $debugRoomId = '56019a060fc9f982beb17a5e';
+    public function token(): string
+    {
+        return $_ENV['token'] ?? $_SERVER['token'] ?? '';
+    }
 
     /**
      * @return string
      */
-    public function token() : string
+    public function debugRoomId(): string
     {
-        return $_ENV['token'] ?? $_SERVER['token'] ?? '';
+        return $_ENV['debug_room_id'] ?? $_SERVER['debug_room_id'] ?? '56019a060fc9f982beb17a5e';
     }
     
     /**

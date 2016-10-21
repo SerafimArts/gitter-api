@@ -7,14 +7,12 @@
  */
 namespace Gitter;
 
-use Gitter\ClientAdapter\SyncAdapter;
 use Monolog\Logger;
 use Psr\Log\NullLogger;
 use Gitter\Support\Loggable;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\LoopInterface;
 use Gitter\ClientAdapter\AdapterInterface;
-use Gitter\ClientAdapter\HttpClientAdapter;
 use React\EventLoop\Factory as LoopFactory;
 
 /**

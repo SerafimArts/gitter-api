@@ -23,6 +23,7 @@
         "ext-mbstring": "*",
         "guzzlehttp/guzzle": "^6.2",
         "react/event-loop": "^0.4",
+        "clue/buzz-react": "^1.0",
         "monolog/monolog": "^1.21"
     },
     "require-dev": {
