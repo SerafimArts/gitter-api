@@ -44,6 +44,8 @@ $client->connect();
 
 Where `fetchType` are one of `"sync"`, `"async"` or `"stream"`.
 
+#### Sync 
+
 Sync requests are block event loop "tick" 
     and fetch all data from external API resource. 
 
@@ -56,6 +58,8 @@ foreach ($response as $room) {
 
 $client->connect();
 ```
+
+#### Async 
 
 Async requests are not blocks an event loop and returns a Promise object (callback).
 After fetching all data Promise will be close.
@@ -72,10 +76,12 @@ $promise->then(function($response) {
 $client->connect();
 ```
 
+#### Streaming 
+
 Streaming requests like an async but cant be resolved. Usually for long-polling answers. 
 
 ```php
-$observer = $client->rooms->async->all(); // Observer
+$observer = $client->rooms->stream->all(); // Observer
 
 $observer->subscribe(function($response) {
     foreach ($response as $room) {
@@ -92,6 +98,7 @@ $client->connect();
 $route = Route::get('rooms/{roomId}/chatMessages')
     ->with('roomId', $roomId)
     ->toStream();
+    
 // Contains "GET https://stream.gitter.im/v1/rooms/.../chatMessages" url
 
 $client->request->stream->to($route)->subscribe(function($message) {
