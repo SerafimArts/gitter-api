@@ -1,9 +1,30 @@
-# Gitter Async Api
+# Gitter 
 
 [![https://travis-ci.org/SerafimArts/gitter-api](https://travis-ci.org/SerafimArts/gitter-api.svg)](https://travis-ci.org/SerafimArts/gitter-api/builds)
 
-> This are **not stable** master branch.
-> [Latest stable version here](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
+Features:
+- Syncronious requests
+- Non blocking async requests
+- Realtime non blocking streaming requests
+
+Drivers:
+- React ([reactphp/react](https://github.com/reactphp/react))
+    - Sync: array
+    - Async: `React\Promise\PromiseInterface`
+    - Streaming: `Gitter\Support\Observer`
+    
+    Installation: **included (default)**
+    
+- GuzzleHttp ([guzzle/guzzle](https://github.com/guzzle/guzzle)) 
+    - Sync: arrays
+    - Async: `GuzzleHttp\Promise\PromiseInterface` (blocking!)
+    - Streaming: `\Generator` (blocking!)
+    
+    Installation: `composer require guzzlehttp/guzzle`
+
+
+> This is **not stable** master branch.
+> See the [latest stable version](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
 
 
 ## Short API description 
