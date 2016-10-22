@@ -253,6 +253,4 @@ class Rooms extends AbstractResource
 
         } while(count($response) >= $limit && ($skip += $limit));
     }
-
-    //public function
 }
