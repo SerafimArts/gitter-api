@@ -9,23 +9,37 @@ namespace Gitter;
 
 use Monolog\Logger;
 use Psr\Log\NullLogger;
+use Gitter\Resources\Rooms;
+use Gitter\Resources\Users;
 use Gitter\Support\Loggable;
-use Gitter\Resources\Facade;
 use Psr\Log\LoggerInterface;
+use Gitter\Resources\Common;
+use Gitter\Resources\Groups;
+use Gitter\Resources\Messages;
+use Serafim\Properties\Properties;
 use React\EventLoop\LoopInterface;
-use Gitter\ClientAdapter\SyncBuzzAdapter;
-use Gitter\ClientAdapter\AsyncBuzzAdapter;
-use Gitter\ClientAdapter\AdapterInterface;
-use Gitter\ClientAdapter\StreamBuzzAdapter;
+use Gitter\Support\AdaptersStorage;
+use Gitter\Resources\ResourceInterface;
 use React\EventLoop\Factory as LoopFactory;
-
 
 /**
  * Class Client
  * @package Gitter
+ *
+ * @property-read string $token
+ * @property-read LoopInterface $loop
+ * @property-read AdaptersStorage $adapters
+ *
+ * @property-read Rooms|ResourceInterface $rooms
+ * @property-read Users|ResourceInterface $users
+ * @property-read Groups|ResourceInterface $groups
+ * @property-read Common|ResourceInterface $request
+ * @property-read Messages|ResourceInterface $messages
  */
 class Client implements Loggable
 {
+    use Properties;
+
     /**
      * @var string
      */
@@ -34,12 +48,17 @@ class Client implements Loggable
     /**
      * @var string
      */
-    private $token;
+    protected $token;
 
     /**
      * @var LoopInterface
      */
-    private $loop;
+    protected $loop;
+
+    /**
+     * @var AdaptersStorage
+     */
+    protected $adapters;
 
     /**
      * @var LoggerInterface
@@ -47,18 +66,9 @@ class Client implements Loggable
     private $logger;
 
     /**
-     * @var array|AdapterInterface[]
+     * @var array|ResourceInterface[]
      */
-    private $adapters = [];
-
-    /**
-     * @var array|AdapterInterface[]
-     */
-    private $defaultAdapters = [
-        AdapterInterface::TYPE_SYNC   => SyncBuzzAdapter::class,
-        AdapterInterface::TYPE_ASYNC  => AsyncBuzzAdapter::class,
-        AdapterInterface::TYPE_STREAM => StreamBuzzAdapter::class,
-    ];
+    private $resources = [];
 
     /**
      * Client constructor.
@@ -68,15 +78,17 @@ class Client implements Loggable
     public function __construct(string $token, LoggerInterface $logger = null)
     {
         $this->token = $token;
-        $this->loop = LoopFactory::create();
+        $this->loop  = LoopFactory::create();
 
         if ($logger === null) {
             $logger = new NullLogger();
         }
 
-        $this->logger = $logger;
+        $this->logger   = $logger;
+        $this->adapters = new AdaptersStorage($this);
 
         $this->logger->info(sprintf('Gitter Client: %s', static::VERSION));
+
     }
 
     /**
@@ -92,22 +104,6 @@ class Client implements Loggable
     }
 
     /**
-     * @return LoopInterface
-     */
-    public function loop(): LoopInterface
-    {
-        return $this->loop;
-    }
-
-    /**
-     * @return string
-     */
-    public function token(): string
-    {
-        return $this->token;
-    }
-
-    /**
      * @return void
      */
     public function connect()
@@ -117,35 +113,64 @@ class Client implements Loggable
     }
 
     /**
-     * @param string $name
-     * @return Facade
+     * @return void
      */
-    public function through(string $name): Facade
+    public function disconnect()
     {
-        if (!array_key_exists($name, $this->adapters)) {
-            $this->logger->info(sprintf('Creating \\%s::class adapter', $name));
-            $this->adapters[$name] = new $name($this);
-        }
+        $this->logger->info('Stopping');
+        $this->loop->stop();
+    }
 
-        return new Facade($this, $this->adapters[$name]);
+    /**
+     * @return Messages|ResourceInterface
+     */
+    protected function getMessages(): Messages
+    {
+        return $this->resource(Messages::class);
+    }
+
+    /**
+     * @return Groups|ResourceInterface
+     */
+    protected function getGroups(): Groups
+    {
+        return $this->resource(Groups::class);
+    }
+
+    /**
+     * @return Rooms|ResourceInterface
+     */
+    protected function getRooms(): Rooms
+    {
+        return $this->resource(Rooms::class);
+    }
+
+    /**
+     * @return Users|ResourceInterface
+     */
+    protected function getUsers(): Users
+    {
+        return $this->resource(Users::class);
+    }
+
+    /**
+     * @return Common|ResourceInterface
+     */
+    protected function getRequest(): Common
+    {
+        return $this->resource(Common::class);
     }
 
     /**
      * @param string $name
-     * @param string|null $adapter
-     * @return Facade
-     * @throws \InvalidArgumentException
+     * @return ResourceInterface
      */
-    public function adapter(string $name, string $adapter = null): Facade
+    private function resource(string $name)
     {
-        if (!array_key_exists($name, $this->defaultAdapters)) {
-            throw new \InvalidArgumentException('Adapter type ' . $name . ' does not exists');
+        if (!array_key_exists($name, $this->resources)) {
+            $this->resources[$name] = new $name($this);
         }
 
-        if ($adapter !== null) {
-            $this->defaultAdapters[$name] = $adapter;
-        }
-
-        return $this->through($this->defaultAdapters[$name]);
+        return $this->resources[$name];
     }
 }

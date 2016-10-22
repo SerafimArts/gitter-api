@@ -25,7 +25,7 @@ class BuzzAdaptersTest extends TestCase
      */
     public function testBuzzSyncAdapter()
     {
-        $response = $this->client()->through(SyncBuzzAdapter::class)
+        $response = $this->client()->adapters->through(SyncBuzzAdapter::class)
             ->request(Route::get('user'));
 
         $this->assertInternalType('array', $response);
@@ -39,22 +39,22 @@ class BuzzAdaptersTest extends TestCase
         $client = $this->client();
 
         /** @var PromiseInterface $promise */
-        $promise = $client->through(AsyncBuzzAdapter::class)
+        $promise = $client->adapters->through(AsyncBuzzAdapter::class)
             ->request(Route::get('user'));
 
         $this->assertInstanceOf(PromiseInterface::class, $promise);
 
         $promise
             ->then(function($response) use ($client, $promise) {
-                $client->loop()->stop();
+                $client->disconnect();
                 $this->assertTrue(is_array($response));
             }, function(\Throwable $e) {
                 $this->throwException($e);
             });
 
         // Throws exception after 10 seconds timeout
-        $client->loop()->addTimer(10, function() use ($client) {
-            $client->loop()->stop();
+        $client->loop->addTimer(10, function() use ($client) {
+            $client->disconnect();
             $this->throwException(new \RuntimeException('Client timeout'));
         });
 
@@ -80,7 +80,7 @@ class BuzzAdaptersTest extends TestCase
 
 
         // Connect to client
-        $client->through(StreamBuzzAdapter::class)->request($routeStream)
+        $client->adapters->through(StreamBuzzAdapter::class)->request($routeStream)
 
             // Message incoming! Assert and shutting down
             ->subscribe(function($answer) use ($client, $message) {
@@ -89,20 +89,20 @@ class BuzzAdaptersTest extends TestCase
                 $this->assertArrayHasKey('text', $answer);
 
                 if ($message === $answer['text']) {
-                    $client->loop()->stop();
+                    $client->disconnect();
                 }
             });
 
 
         // Send message after 1 second
-        $client->loop()->addTimer(1, function() use ($message, $routeAnswer) {
-            $this->client()->through(SyncBuzzAdapter::class)
+        $client->loop->addTimer(1, function() use ($message, $routeAnswer) {
+            $this->client()->adapters->through(SyncBuzzAdapter::class)
                 ->request($routeAnswer->withBody('text', $message));
         });
 
         // Throws exception after 10 seconds timeout
-        $client->loop()->addTimer(10, function() use ($client) {
-            $client->loop()->stop();
+        $client->loop->addTimer(10, function() use ($client) {
+            $client->disconnect();
             $this->throwException(new \RuntimeException('Client timeout'));
         });
 

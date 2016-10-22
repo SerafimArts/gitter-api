@@ -45,7 +45,7 @@ class StreamGuzzleAdapter extends AbstractGuzzleAdapter implements StreamingAdap
     {
         $json = new JsonStream();
 
-        $request = $this->prepareRequest($this->gitter->token(), $route);
+        $request = $this->prepareRequest($this->gitter->token, $route);
         $this->logRequest($request, 'Blocking stream');
 
         yield from $json->stream($this->client->send($request, $this->options)->getBody());

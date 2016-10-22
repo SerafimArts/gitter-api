@@ -7,18 +7,20 @@
  */
 namespace Gitter\Resources;
 
-use Gitter\Client;
-use Gitter\ClientAdapter\AdapterInterface;
+use Gitter\Route;
 
 /**
- * Interface ResourceInterface
+ * Class Common
  * @package Gitter\Resources
  */
-interface ResourceInterface
+class Common extends AbstractResource
 {
     /**
-     * ResourceInterface constructor.
-     * @param Client $client
+     * @param Route $route
+     * @return mixed
      */
-    public function __construct(Client $client);
+    public function to(Route $route)
+    {
+        return $this->fetch($route);
+    }
 }

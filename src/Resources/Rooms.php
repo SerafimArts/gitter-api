@@ -235,12 +235,6 @@ class Rooms extends AbstractResource
         $skip  = 0;
         $limit = 30;
 
-        if (!$this->adapterAre(SyncAdapterInterface::class)) {
-            throw new \InvalidArgumentException(
-                sprintf('You can fetch users over %s only', SyncAdapterInterface::class)
-            );
-        }
-
         do {
             $route = Route::get('rooms/{roomId}/users')
                 ->withMany([
@@ -253,7 +247,7 @@ class Rooms extends AbstractResource
                 $route->with('q', $query);
             }
 
-            yield from $response = $this->fetch($route);
+            yield from $response = $this->sync($route);
 
         } while(count($response) >= $limit && ($skip += $limit));
     }

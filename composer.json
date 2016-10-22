@@ -24,7 +24,8 @@
         "react/event-loop": "^0.4",
         "clue/buzz-react": "^1.0",
         "clue/block-react": "^1.0",
-        "monolog/monolog": "^1.21"
+        "monolog/monolog": "^1.21",
+        "serafim/properties": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.5",

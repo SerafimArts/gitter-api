@@ -27,7 +27,7 @@ class AsyncGuzzleAdapter extends AbstractGuzzleAdapter implements AsyncAdapterIn
      */
     public function request(Route $route)
     {
-        $request = $this->prepareRequest($this->gitter->token(), $route);
+        $request = $this->prepareRequest($this->gitter->token, $route);
         $this->logRequest($request);
 
         $responsePromise = $this->client->sendAsync($request, $this->options);

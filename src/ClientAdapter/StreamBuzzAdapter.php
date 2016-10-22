@@ -29,7 +29,7 @@ class StreamBuzzAdapter extends AbstractBuzzAdapter implements StreamingAdapterI
     {
         $observer = new Observer();
         $json     = new JsonStream();
-        $request  = $this->prepareRequest($this->gitter->token(), $route);
+        $request  = $this->prepareRequest($this->gitter->token, $route);
 
         $this->logRequest($request, 'Non blocking stream');
 

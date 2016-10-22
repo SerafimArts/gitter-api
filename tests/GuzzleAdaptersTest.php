@@ -24,7 +24,7 @@ class GuzzleAdaptersTest extends TestCase
      */
     public function testSyncAdapter()
     {
-        $response = $this->client()->through(SyncGuzzleAdapter::class)
+        $response = $this->client()->adapters->through(SyncGuzzleAdapter::class)
             ->request(Route::get('user'));
 
         $this->assertInternalType('array', $response);
@@ -36,7 +36,7 @@ class GuzzleAdaptersTest extends TestCase
     public function testAsyncAdapter()
     {
         /** @var PromiseInterface $promise */
-        $promise = $this->client()->through(AsyncGuzzleAdapter::class)
+        $promise = $this->client()->adapters->through(AsyncGuzzleAdapter::class)
             ->request(Route::get('user'));
 
         $this->assertInstanceOf(PromiseInterface::class, $promise);
@@ -63,7 +63,7 @@ class GuzzleAdaptersTest extends TestCase
             ->toStream();
 
         /** @var \Generator $stream */
-        $stream = $client->through(StreamGuzzleAdapter::class)->request($routeStream);
+        $stream = $client->adapters->through(StreamGuzzleAdapter::class)->request($routeStream);
 
         $this->assertInstanceOf(\Generator::class, $stream);
     }

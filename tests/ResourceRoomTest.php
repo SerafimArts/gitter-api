@@ -19,7 +19,7 @@ class ResourceRoomTest extends TestCase
     {
         $client = $this->client();
 
-        $rooms = $client->adapter(AdapterInterface::TYPE_SYNC)->rooms->all();
+        $rooms = $client->rooms->all();
 
         foreach ($rooms as $room) {
             $this->assertTrue(is_array($room));
@@ -30,11 +30,11 @@ class ResourceRoomTest extends TestCase
     {
         $client = $this->client();
 
-        $response = $client->adapter(AdapterInterface::TYPE_SYNC)->rooms->leave($this->debugRoomId());
+        $response = $client->rooms->leave($this->debugRoomId());
         $this->assertTrue(is_array($response));
         $this->assertTrue($response['success']);
 
-        $response = $client->adapter(AdapterInterface::TYPE_SYNC)->rooms->join($this->debugRoomId());
+        $response = $client->rooms->join($this->debugRoomId());
         $this->assertTrue(is_array($response));
         $this->assertEquals($response['id'], $this->debugRoomId());
     }
@@ -43,7 +43,7 @@ class ResourceRoomTest extends TestCase
     {
         $client = $this->client();
 
-        $users = $client->adapter(AdapterInterface::TYPE_SYNC)->rooms->users($this->debugRoomId());
+        $users = $client->rooms->users($this->debugRoomId());
 
         foreach ($users as $user) {
             $this->assertTrue(is_array($user));

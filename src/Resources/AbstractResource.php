@@ -9,6 +9,7 @@ namespace Gitter\Resources;
 
 use Gitter\Route;
 use Gitter\Client;
+use Gitter\ClientAdapter\SyncBuzzAdapter;
 use Gitter\ClientAdapter\AdapterInterface;
 
 /**
@@ -35,21 +36,11 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * AbstractResource constructor.
      * @param Client $client
-     * @param AdapterInterface $adapter
      */
-    public function __construct(Client $client, AdapterInterface $adapter)
+    public function __construct(Client $client)
     {
         $this->client = $client;
-        $this->adapter = $adapter;
-    }
-
-    /**
-     * @param string $instanceof
-     * @return bool
-     */
-    protected function adapterAre(string $instanceof)
-    {
-        return $this->adapter instanceof $instanceof;
+        $this->adapter = new SyncBuzzAdapter($client);
     }
 
     /**
@@ -58,7 +49,7 @@ abstract class AbstractResource implements ResourceInterface
      */
     protected function currentUser(): array
     {
-        if (!array_key_exists($this->client->token(), self::$currentUserId)) {
+        if (!array_key_exists($this->client->token, self::$currentUserId)) {
             $response = $this->sync(Route::get('user')->toApi());
             $userId   = $response[0] ?? null;
 
@@ -66,10 +57,10 @@ abstract class AbstractResource implements ResourceInterface
                 throw new \InvalidArgumentException('Broken request. Can not fetch current authenticated user');
             }
 
-            self::$currentUserId[$this->client->token()] = $userId;
+            self::$currentUserId[$this->client->token] = $userId;
         }
 
-        return self::$currentUserId[$this->client->token()];
+        return self::$currentUserId[$this->client->token];
     }
 
     /**
@@ -82,25 +73,33 @@ abstract class AbstractResource implements ResourceInterface
     }
 
     /**
-     * @param Route $route
-     * @return array
+     * @param string $type
+     * @return AdapterInterface
      * @throws \InvalidArgumentException
      */
-    protected function sync(Route $route)
+    protected function using(string $type)
     {
-        return $this->client->adapter(AdapterInterface::TYPE_SYNC)
-            ->request($route);
+        return $this->client->adapters->using($type);
     }
 
     /**
      * @param Route $route
-     * @return \React\Promise\PromiseInterface|\GuzzleHttp\Promise\PromiseInterface
+     * @return mixed
+     * @throws \InvalidArgumentException
+     */
+    protected function sync(Route $route)
+    {
+        return $this->using(AdapterInterface::TYPE_SYNC)->request($route);
+    }
+
+    /**
+     * @param Route $route
+     * @return mixed
      * @throws \InvalidArgumentException
      */
     protected function async(Route $route)
     {
-        return $this->client->adapter(AdapterInterface::TYPE_ASYNC)
-            ->request($route);
+        return $this->using(AdapterInterface::TYPE_ASYNC)->request($route);
     }
 
     /**
@@ -110,7 +109,6 @@ abstract class AbstractResource implements ResourceInterface
      */
     protected function stream(Route $route)
     {
-        return $this->client->adapter(AdapterInterface::TYPE_STREAM)
-            ->request($route);
+        return $this->using(AdapterInterface::TYPE_STREAM)->request($route);
     }
 }

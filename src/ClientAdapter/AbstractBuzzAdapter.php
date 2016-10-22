@@ -41,7 +41,7 @@ abstract class AbstractBuzzAdapter implements AdapterInterface, Loggable
     public function __construct(Gitter $gitter)
     {
         $this->gitter = $gitter;
-        $this->client = new Browser($this->gitter->loop());
+        $this->client = new Browser($this->gitter->loop);
     }
 
     /**

@@ -19,9 +19,12 @@ class SyncBuzzAdapter extends AsyncBuzzAdapter implements SyncAdapterInterface
     /**
      * @param Route $route
      * @return mixed
+     * @throws \Exception
+     * @throws \InvalidArgumentException
+     * @throws \React\Promise\Timer\TimeoutException
      */
     public function request(Route $route)
     {
-        return Block\await(parent::request($route), $this->gitter->loop());
+        return Block\await(parent::request($route), $this->gitter->loop);
     }
 }

@@ -19,12 +19,12 @@ class ClientTest extends TestCase
 
     public function testTokenAccessible()
     {
-        $this->assertEquals($this->client()->token(), $this->token(), 'Tokens are not equals');
+        $this->assertEquals($this->client()->token, $this->token(), 'Tokens are not equals');
     }
 
     public function testLoopAvailable()
     {
-        $this->assertInstanceOf(LoopInterface::class, $this->client()->loop(), 'Loop are not an instance of LoopInterface');
+        $this->assertInstanceOf(LoopInterface::class, $this->client()->loop, 'Loop are not an instance of LoopInterface');
     }
 
     public function testLoggerAvailable()
@@ -36,7 +36,7 @@ class ClientTest extends TestCase
     {
         $booted = false;
 
-        $loop = $this->client()->loop();
+        $loop = $this->client()->loop;
 
         $loop->addTimer(0, function() use (&$booted) {
             $booted = true;

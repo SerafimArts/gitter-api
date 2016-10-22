@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b4b6b3eeab4c6a0895a73bcb8bd8c011",
-    "content-hash": "fb7da8230992ab41b962c8c3e009143f",
+    "hash": "dda21b7f4a7f9765fe22059652c29335",
+    "content-hash": "6c045c1e7afe1603516eb74013e10240",
     "packages": [
         {
             "name": "clue/block-react",
@@ -820,6 +820,50 @@
                 "uri"
             ],
             "time": "2016-03-25 17:36:49"
+        },
+        {
+            "name": "serafim/properties",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SerafimArts/Properties.git",
+                "reference": "35997818ca5d6e715aae3e0fdaaaa9a7efc90539"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SerafimArts/Properties/zipball/35997818ca5d6e715aae3e0fdaaaa9a7efc90539",
+                "reference": "35997818ca5d6e715aae3e0fdaaaa9a7efc90539",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "5.3.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Serafim\\Properties\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nesmeyanov Kirill",
+                    "email": "nesk@xakep.ru"
+                }
+            ],
+            "description": "PHP properties implementation",
+            "homepage": "http://github.io/SerafimArts/Properties",
+            "keywords": [
+                "fields",
+                "properties"
+            ],
+            "time": "2016-05-17 10:15:32"
         }
     ],
     "packages-dev": [

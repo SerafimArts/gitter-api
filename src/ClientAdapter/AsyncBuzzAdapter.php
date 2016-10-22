@@ -28,7 +28,7 @@ class AsyncBuzzAdapter extends AbstractBuzzAdapter implements AsyncAdapterInterf
     {
         $deferred = new Deferred();
 
-        $request = $this->prepareRequest($this->gitter->token(), $route);
+        $request = $this->prepareRequest($this->gitter->token, $route);
         $this->logRequest($request);
 
         /** @var Promise $answer */
