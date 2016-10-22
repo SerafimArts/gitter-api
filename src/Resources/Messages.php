@@ -12,7 +12,6 @@ use Gitter\ClientAdapter\SyncAdapterInterface;
 use Gitter\Route;
 
 /**
- * @TODO Not implemented yet
  * Messages represent individual chat messages sent to a room. They are a sub-resource of a room.
  *
  * Message schema:
@@ -36,8 +35,10 @@ use Gitter\Route;
 class Messages extends AbstractResource
 {
     /**
-     * @param string $roomId
-     * @param string|null $query
+     * List of messages in a room in historical reversed order
+     *
+     * @param string $roomId Room id
+     * @param string|null $query Optional search query
      * @return \Generator
      * @throws \InvalidArgumentException
      */
@@ -57,6 +58,10 @@ class Messages extends AbstractResource
                 $route->with('beforeId', $beforeId);
             }
 
+            if ($query !== null) {
+                $route->with('q', $query);
+            }
+
             $response = array_reverse($adapter->request($route));
 
             foreach ($response as $message) {
@@ -65,5 +70,82 @@ class Messages extends AbstractResource
             }
 
         } while (count($response) >= $limit);
+    }
+
+    /**
+     * There is also a way to retrieve a single message using its id.
+     *
+     * @param string $roomId Room id
+     * @param string $messageId Message id
+     * @return mixed
+     */
+    public function find(string $roomId, string $messageId)
+    {
+        return $this->fetch(
+            Route::get('rooms/{roomId}/chatMessages/{messageId}')
+                ->withMany([ 'roomId' => $roomId, 'messageId' => $messageId ])
+        );
+    }
+
+    /**
+     * Send a message to a room.
+     *
+     * @param string $roomId Room id
+     * @param string $content Message body
+     * @return mixed
+     */
+    public function create(string $roomId, string $content)
+    {
+        return $this->fetch(
+            Route::post('rooms/{roomId}/chatMessages')
+                ->with('roomId', $roomId)
+                ->withBody('text', $content)
+        );
+    }
+
+    /**
+     * Update a message
+     *
+     * @param string $roomId Room id
+     * @param string $messageId Message id
+     * @param string $content New message body
+     * @return mixed
+     */
+    public function update(string $roomId, string $messageId, string $content)
+    {
+        return $this->fetch(
+            Route::put('rooms/{roomId}/chatMessages/{messageId}')
+                ->withMany([ 'roomId' => $roomId, 'messageId' => $messageId ])
+                ->withBody('text', $content)
+        );
+    }
+
+    /**
+     * Delete a message
+     *
+     * @param string $roomId
+     * @param string $messageId
+     * @return mixed
+     */
+    public function delete(string $roomId, string $messageId)
+    {
+        return $this->update($roomId, $messageId, '');
+    }
+
+    /**
+     * Use the streaming API to listen to messages. The streaming API allows real-time access to messages fetching.
+     *
+     * @param string $roomId
+     * @return mixed
+     * @throws \InvalidArgumentException
+     */
+    public function connect(string $roomId)
+    {
+        return $this->using(AdapterInterface::TYPE_STREAM)
+            ->request(
+                Route::get('rooms/{roomId}/chatMessages')
+                    ->with('roomId', $roomId)
+                    ->toStream()
+            );
     }
 }
