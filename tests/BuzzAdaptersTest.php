@@ -23,7 +23,7 @@ class BuzzAdaptersTest extends TestCase
     /**
      * SYNC
      */
-    public function testBuzzSyncAdapter()
+    public function testSyncAdapter()
     {
         $response = $this->client()->adapters->through(SyncBuzzAdapter::class)
             ->request(Route::get('user'));
@@ -34,7 +34,7 @@ class BuzzAdaptersTest extends TestCase
     /**
      * ASYNC
      */
-    public function testBuzzAsyncAdapter()
+    public function testAsyncAdapter()
     {
         $client = $this->client();
 

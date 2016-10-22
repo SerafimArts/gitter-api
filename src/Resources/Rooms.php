@@ -7,6 +7,7 @@
  */
 namespace Gitter\Resources;
 
+use Gitter\ClientAdapter\AdapterInterface;
 use Gitter\Route;
 use Gitter\ClientAdapter\SyncAdapterInterface;
 
@@ -232,8 +233,9 @@ class Rooms extends AbstractResource
      */
     public function users(string $roomId, string $query = null): \Generator
     {
-        $skip  = 0;
-        $limit = 30;
+        $adapter = $this->using(AdapterInterface::TYPE_SYNC);
+        $skip    = 0;
+        $limit   = 30;
 
         do {
             $route = Route::get('rooms/{roomId}/users')
@@ -247,7 +249,7 @@ class Rooms extends AbstractResource
                 $route->with('q', $query);
             }
 
-            yield from $response = $this->sync($route);
+            yield from $response = $adapter->request($route);
 
         } while(count($response) >= $limit && ($skip += $limit));
     }

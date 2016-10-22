@@ -9,15 +9,22 @@ namespace Gitter\Resources;
 
 use Gitter\Route;
 use Gitter\Client;
-use Gitter\ClientAdapter\SyncBuzzAdapter;
 use Gitter\ClientAdapter\AdapterInterface;
+use Gitter\ClientAdapter\SyncAdapterInterface;
+use Serafim\Properties\Properties;
 
 /**
  * Class AbstractResource
  * @package Gitter\Resources
+ *
+ * @property-read $this|AbstractResource $sync
+ * @property-read $this|AbstractResource $async
+ * @property-read $this|AbstractResource $stream
  */
 abstract class AbstractResource implements ResourceInterface
 {
+    use Properties;
+
     /**
      * @var Client
      */
@@ -29,7 +36,7 @@ abstract class AbstractResource implements ResourceInterface
     private static $currentUserId = [];
 
     /**
-     * @var AdapterInterface
+     * @var AdapterInterface|null
      */
     private $adapter;
 
@@ -40,7 +47,6 @@ abstract class AbstractResource implements ResourceInterface
     public function __construct(Client $client)
     {
         $this->client = $client;
-        $this->adapter = new SyncBuzzAdapter($client);
     }
 
     /**
@@ -50,7 +56,7 @@ abstract class AbstractResource implements ResourceInterface
     protected function currentUser(): array
     {
         if (!array_key_exists($this->client->token, self::$currentUserId)) {
-            $response = $this->sync(Route::get('user')->toApi());
+            $response = $this->using(AdapterInterface::TYPE_SYNC)->request(Route::get('user')->toApi());
             $userId   = $response[0] ?? null;
 
             if ($userId === null) {
@@ -64,12 +70,55 @@ abstract class AbstractResource implements ResourceInterface
     }
 
     /**
+     * @return $this
+     * @throws \InvalidArgumentException
+     */
+    protected function getSync()
+    {
+        $this->adapter = $this->using(AdapterInterface::TYPE_SYNC);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     * @throws \InvalidArgumentException
+     */
+    protected function getAsync()
+    {
+        $this->adapter = $this->using(AdapterInterface::TYPE_ASYNC);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     * @throws \InvalidArgumentException
+     */
+    protected function getStream()
+    {
+        $this->adapter = $this->using(AdapterInterface::TYPE_STREAM);
+
+        return $this;
+    }
+
+    /**
      * @param Route $route
      * @return mixed
      */
     protected function fetch(Route $route)
     {
-        return $this->adapter->request($route);
+        $adapter = $this->adapter;
+
+        if (!($this->adapter instanceof SyncAdapterInterface)) {
+            $this->resetAdapter();
+        }
+
+        if ($adapter === null) {
+            $adapter = $this->adapter;
+        }
+
+        return $adapter->request($route);
     }
 
     /**
@@ -83,32 +132,16 @@ abstract class AbstractResource implements ResourceInterface
     }
 
     /**
-     * @param Route $route
-     * @return mixed
-     * @throws \InvalidArgumentException
+     * @return AdapterInterface
      */
-    protected function sync(Route $route)
+    private function resetAdapter(): AdapterInterface
     {
-        return $this->using(AdapterInterface::TYPE_SYNC)->request($route);
-    }
+        try {
+            $this->adapter = $this->client->adapters->using(AdapterInterface::TYPE_SYNC);
+        } catch (\Throwable $e) {
+            // Adapters valid ever
+        }
 
-    /**
-     * @param Route $route
-     * @return mixed
-     * @throws \InvalidArgumentException
-     */
-    protected function async(Route $route)
-    {
-        return $this->using(AdapterInterface::TYPE_ASYNC)->request($route);
-    }
-
-    /**
-     * @param Route $route
-     * @return mixed
-     * @throws \InvalidArgumentException
-     */
-    protected function stream(Route $route)
-    {
-        return $this->using(AdapterInterface::TYPE_STREAM)->request($route);
+        return $this->adapter;
     }
 }

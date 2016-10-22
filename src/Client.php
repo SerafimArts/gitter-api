@@ -30,10 +30,11 @@ use React\EventLoop\Factory as LoopFactory;
  * @property-read LoopInterface $loop
  * @property-read AdaptersStorage $adapters
  *
+ * @property-read Common|ResourceInterface $request
+ *
  * @property-read Rooms|ResourceInterface $rooms
  * @property-read Users|ResourceInterface $users
  * @property-read Groups|ResourceInterface $groups
- * @property-read Common|ResourceInterface $request
  * @property-read Messages|ResourceInterface $messages
  */
 class Client implements Loggable
