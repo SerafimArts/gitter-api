@@ -2,8 +2,8 @@
 
 [![https://travis-ci.org/SerafimArts/gitter-api](https://travis-ci.org/SerafimArts/gitter-api.svg)](https://travis-ci.org/SerafimArts/gitter-api/builds)
 
-> This are **not stable** master branch
-> See: [Latest stable version](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
+> This are **not stable** master branch.
+> [Latest stable version here](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
 
 
 ## Short API description 
