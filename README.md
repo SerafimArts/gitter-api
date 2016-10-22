@@ -2,21 +2,16 @@
 
 [![https://travis-ci.org/SerafimArts/gitter-api](https://travis-ci.org/SerafimArts/gitter-api.svg)](https://travis-ci.org/SerafimArts/gitter-api/builds)
 
-Features:
-- Syncronious requests
-- Non blocking async requests
-- Realtime non blocking streaming requests
-
-Drivers:
+Support adapters:
 - React ([reactphp/react](https://github.com/reactphp/react))
-    - Sync: array
+    - Sync: `array`
     - Async: `React\Promise\PromiseInterface`
     - Streaming: `Gitter\Support\Observer`
     
     Installation: **included (default)**
     
 - GuzzleHttp ([guzzle/guzzle](https://github.com/guzzle/guzzle)) 
-    - Sync: arrays
+    - Sync: `array`
     - Async: `GuzzleHttp\Promise\PromiseInterface` (blocking!)
     - Streaming: `\Generator` (blocking!)
     
