@@ -1,7 +1,6 @@
 # Gitter 
 
 [![https://travis-ci.org/SerafimArts/gitter-api](https://travis-ci.org/SerafimArts/gitter-api.svg)](https://travis-ci.org/SerafimArts/gitter-api/builds)
-[![Coverage Status](https://coveralls.io/repos/github/SerafimArts/gitter-api/badge.svg?branch=master)](https://coveralls.io/github/SerafimArts/gitter-api?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/SerafimArts/gitter-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/SerafimArts/gitter-api/?branch=master)
 
 > This is **not stable** master branch.
