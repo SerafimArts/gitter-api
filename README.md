@@ -1,12 +1,8 @@
-# Gitter 
+# Gitter API Client 3.0 
 
 [![https://travis-ci.org/SerafimArts/gitter-api](https://travis-ci.org/SerafimArts/gitter-api.svg)](https://travis-ci.org/SerafimArts/gitter-api/builds)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/SerafimArts/gitter-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/SerafimArts/gitter-api/?branch=master)
 
-> This is **not stable** master branch.
-> See the [latest stable version](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
-
-- [Version 3.0.x](https://github.com/SerafimArts/gitter-api/tree/master)
 - [Version 2.1.x](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
 - [Version 2.0.x](https://github.com/SerafimArts/gitter-api/tree/8ad7f4d06c5f8196ada5798799cd8c1d5f55a974)
 - [Version 1.1.x](https://github.com/SerafimArts/gitter-api/tree/26c3640a1d933db8ad27bd3c10f8bc42ff936c47)
