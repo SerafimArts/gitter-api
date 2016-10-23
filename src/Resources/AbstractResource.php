@@ -9,9 +9,9 @@ namespace Gitter\Resources;
 
 use Gitter\Route;
 use Gitter\Client;
+use Serafim\Properties\Properties;
 use Gitter\ClientAdapter\AdapterInterface;
 use Gitter\ClientAdapter\SyncAdapterInterface;
-use Serafim\Properties\Properties;
 
 /**
  * Class AbstractResource

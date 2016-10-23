@@ -7,13 +7,25 @@
  */
 namespace Gitter\Tests;
 
-use Gitter\ClientAdapter\AdapterInterface;
-
 /**
  * Class ResourceMessagesTest
  * @package Gitter\Tests
  */
 class ResourceGroupsTest extends TestCase
 {
+    public function testGroups()
+    {
+        $this->assertInternalType('array', $this->client()->groups->all());
+    }
 
+    public function testRooms()
+    {
+        $client = $this->client();
+
+        $groups = $client->groups->all();
+        foreach ($groups as $group) {
+            $this->assertInternalType('array', $client->groups->rooms($group['id']));
+            break;
+        }
+    }
 }

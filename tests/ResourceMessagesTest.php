@@ -7,8 +7,6 @@
  */
 namespace Gitter\Tests;
 
-use Gitter\ClientAdapter\AdapterInterface;
-
 /**
  * Class ResourceMessagesTest
  * @package Gitter\Tests

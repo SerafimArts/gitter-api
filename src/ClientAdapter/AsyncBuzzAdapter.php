@@ -10,8 +10,8 @@ namespace Gitter\ClientAdapter;
 use Gitter\Route;
 use React\Promise\Promise;
 use React\Promise\Deferred;
-use Psr\Http\Message\ResponseInterface;
 use React\Promise\PromiseInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class AsyncBuzzAdapter

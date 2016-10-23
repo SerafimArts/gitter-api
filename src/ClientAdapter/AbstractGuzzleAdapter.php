@@ -7,7 +7,6 @@
  */
 namespace Gitter\ClientAdapter;
 
-use Gitter\Route;
 use Monolog\Logger;
 use GuzzleHttp\Client;
 use Gitter\Support\Loggable;

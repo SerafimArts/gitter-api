@@ -7,9 +7,9 @@
  */
 namespace Gitter\Resources;
 
-use Gitter\ClientAdapter\AdapterInterface;
 use Gitter\Route;
-use Gitter\ClientAdapter\SyncAdapterInterface;
+use Gitter\Support\Observer;
+use Gitter\ClientAdapter\AdapterInterface;
 
 /**
  * A Room in Gitter can represent a GitHub Organisation, a GitHub Repository, a Gitter Channel
@@ -252,5 +252,41 @@ class Rooms extends AbstractResource
             yield from $response = $adapter->request($route);
 
         } while(count($response) >= $limit && ($skip += $limit));
+    }
+
+    /**
+     * Use the streaming API to listen events.
+     * The streaming API allows real-time access to messages fetching.
+     *
+     * @param string $roomId
+     * @return Observer
+     * @throws \InvalidArgumentException
+     */
+    public function events(string $roomId): Observer
+    {
+        return $this->using(AdapterInterface::TYPE_STREAM)
+            ->request(
+                Route::get('rooms/{roomId}/events')
+                    ->with('roomId', $roomId)
+                    ->toStream()
+            );
+    }
+
+    /**
+     * Use the streaming API to listen messages.
+     * The streaming API allows real-time access to messages fetching.
+     *
+     * @param string $roomId
+     * @return Observer
+     * @throws \InvalidArgumentException
+     */
+    public function messages(string $roomId): Observer
+    {
+        return $this->using(AdapterInterface::TYPE_STREAM)
+            ->request(
+                Route::get('rooms/{roomId}/chatMessages')
+                    ->with('roomId', $roomId)
+                    ->toStream()
+            );
     }
 }

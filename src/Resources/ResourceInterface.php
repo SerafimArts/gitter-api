@@ -8,7 +8,6 @@
 namespace Gitter\Resources;
 
 use Gitter\Client;
-use Gitter\ClientAdapter\AdapterInterface;
 
 /**
  * Interface ResourceInterface

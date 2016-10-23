@@ -7,7 +7,6 @@
  */
 namespace Gitter\ClientAdapter;
 
-use Gitter\Route;
 use Monolog\Logger;
 use Gitter\Support\Loggable;
 use Clue\React\Buzz\Browser;

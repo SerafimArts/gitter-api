@@ -7,9 +7,8 @@
  */
 namespace Gitter\Resources;
 
-use Gitter\ClientAdapter\AdapterInterface;
-use Gitter\ClientAdapter\SyncAdapterInterface;
 use Gitter\Route;
+use Gitter\ClientAdapter\AdapterInterface;
 
 /**
  * Messages represent individual chat messages sent to a room. They are a sub-resource of a room.
@@ -130,22 +129,5 @@ class Messages extends AbstractResource
     public function delete(string $roomId, string $messageId)
     {
         return $this->update($roomId, $messageId, '');
-    }
-
-    /**
-     * Use the streaming API to listen to messages. The streaming API allows real-time access to messages fetching.
-     *
-     * @param string $roomId
-     * @return mixed
-     * @throws \InvalidArgumentException
-     */
-    public function connect(string $roomId)
-    {
-        return $this->using(AdapterInterface::TYPE_STREAM)
-            ->request(
-                Route::get('rooms/{roomId}/chatMessages')
-                    ->with('roomId', $roomId)
-                    ->toStream()
-            );
     }
 }

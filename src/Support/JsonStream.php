@@ -9,7 +9,6 @@ namespace Gitter\Support;
 
 use Monolog\Logger;
 use Psr\Http\Message\StreamInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class JsonStream
