@@ -46,9 +46,11 @@ $client->connect(); // Locks current runtime and starts an EventLoop
 
 ## Resources
 
-1) `$client->resource->action(...)`
+Example: `$client->resource->action(...)` or `$client->resource->fetchType->action(...)`
 
-Where `resource` are one of `"rooms"`, `"users"`, `"groups"` or `"messages"`; `action` are specify for every resource.
+- `resource` are one of `"rooms"`, `"users"`, `"groups"` or `"messages"`
+- `fetchType` are one of `"sync"`, `"async"` or `"stream"`
+- `action` are specify for every resource
 
 ```php
 $response = $client->rooms->all(); // "rooms" - resource, "all" - action
@@ -61,10 +63,6 @@ foreach ($response as $room) {
 
 $client->connect();
 ```
-
-2) `$client->resource->fetchType->action(...)`
-
-Where `fetchType` are one of `"sync"`, `"async"` or `"stream"`.
 
 ### Sync 
 
@@ -114,6 +112,128 @@ $observer->subscribe(function($response) {
 $client->connect();
 ```
 
+## Available resources
+
+### Groups
+
+List groups the current user is in.
+
+- `$client->groups->all()`
+
+List of rooms nested under the specified group.
+
+- `$client->groups->rooms(string $roomId)`
+
+### Messages
+
+List of messages in a room in historical reversed order. **Only synchronous driver** 
+
+- `$client->messages->all(string $roomId[, string $query]): \Generator`
+
+There is also a way to retrieve a single message using its id.
+
+- `$client->messages->find(string $roomId, string $messageId)`
+
+Send a message to a room.
+
+- `$client->messages->create(string $roomId, string $content)`
+
+Update a message.
+
+- `$client->messages->update(string $roomId, string $messageId, string $content)`
+
+Delete a message.
+
+- `$client->messages->delete(string $roomId, string $messageId)`
+
+### Rooms
+
+List rooms the current user is in.
+
+- `$client->rooms->all([string $query])`
+
+Join user into a room.
+
+- `$client->rooms->joinUser(string $roomId, string $userId)`
+
+Join current user into a room.
+
+- `$client->rooms->join(string $roomId)`
+
+Join current user into a room by room name (URI).
+
+- `$client->rooms->joinByName(string $name)`
+
+Find room by room name (URI).
+
+- `$client->rooms->findByName(string $name)`
+
+Kick user from target room.
+
+- `$client->rooms->kick(string $roomId, string $userId)`
+
+This can be self-inflicted to leave the the room and remove room from your left menu.
+
+- `$client->rooms->leave(string $roomId)`
+
+Sets up a new topic of target room.
+
+- `$client->rooms->topic(string $roomId, string $topic)`
+
+Sets the room is indexed by search engines.
+
+- `$client->rooms->searchIndex(string $roomId, bool $enabled)`
+
+Sets the tags that define the room
+
+- `$client->rooms->tags(string $roomId, array $tags)`
+
+If you hate one of the rooms - you can destroy it!
+
+- `$client->rooms->delete(string $roomId)`
+
+List of users currently in the room. **Only synchronous driver**
+
+- `$client->rooms->users(string $roomId[, string $query]: \Generator`
+
+Use the streaming API to listen events. **Only streaming driver**
+
+- `$client->rooms->events(string $roomId): Observer`
+
+Use the streaming API to listen messages. **Only streaming driver**
+
+- `$client->rooms->messages(string $roomId): Observer`
+
+### Users
+
+Returns the current user logged in.
+
+- `$client->users->current(): array`
+
+List of Rooms the user is part of.
+
+- `$client->users->rooms([string $userId])`
+
+You can retrieve unread items and mentions using the following endpoint.
+
+- `$client->users->unreadItems(string $roomId[, string $userId])`
+
+There is an additional endpoint nested under rooms that you can use to mark chat messages as read
+
+- `$client->users->markAsRead(string $roomId, array $messageIds[, string $userId])`
+
+List of the user's GitHub Organisations and their respective Room if available.
+
+- `$client->users->orgs([string $userId])`
+
+List of the user's GitHub Repositories and their respective Room if available.
+
+- `$client->users->repos([string $userId])`
+
+List of Gitter channels nested under the user.
+
+- `$client->users->channels([string $userId])`
+
 ## Custom routing
 
 ```php
@@ -130,3 +250,24 @@ $client->request->stream->to($route)->subscribe(function($message) {
 
 $client->connect();
 ```
+
+Available route methods:
+
+- `Route::get(string $route)` - GET http method
+- `Route::post(string $route)` - POST http method
+- `Route::put(string $route)` - PUT http method
+- `Route::patch(string $route)` - PATCH http method
+- `Route::delete(string $route)` - DELETE http method
+- `Route::options(string $route)` - OPTIONS http method
+- `Route::head(string $route)` - HEAD http method
+- `Route::connect(string $route)` - CONNECT http method
+- `Route::trace(string $route)` - TRACE http method
+
+Route arguments:
+
+- `$route->with(string $key, string $value)` - Add route or GET query parameter
+- `$route->withMany(array $parameters)` - Add route or GET query parameters
+- `$route->withBody(string $key, string $value)` - Add POST, PUT, DELETE, etc body parameter
+
+
+See more info about API into [Documentation](https://developer.gitter.im/docs/welcome)

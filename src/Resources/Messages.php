@@ -41,7 +41,7 @@ class Messages extends AbstractResource
      * @return \Generator
      * @throws \InvalidArgumentException
      */
-    public function all(string $roomId, string $query = null)
+    public function all(string $roomId, string $query = null): \Generator
     {
         $adapter  = $this->using(AdapterInterface::TYPE_SYNC);
 

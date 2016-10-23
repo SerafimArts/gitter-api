@@ -44,38 +44,40 @@ class Users extends AbstractResource
     {
         return $this->fetch(
             Route::get('user/{userId}/rooms')
-                ->with('userId', $userId ?? $this->current()['id'])
+                ->with('userId', $userId ?? $this->currentUserId())
         );
     }
 
     /**
      * You can retrieve unread items and mentions using the following endpoint.
      *
-     * @param string $userId
      * @param string $roomId
+     * @param string|null $userId
      * @return mixed
+     * @throws \InvalidArgumentException
      */
-    public function unreadItems(string $userId, string $roomId)
+    public function unreadItems(string $roomId, string $userId = null)
     {
         return $this->fetch(
             Route::get('user/{userId}/rooms/{roomId}/unreadItems')
-                ->withMany(['userId' => $userId, 'roomId' => $roomId])
+                ->withMany(['userId' => $userId ?? $this->currentUserId(), 'roomId' => $roomId])
         );
     }
 
     /**
      * There is an additional endpoint nested under rooms that you can use to mark chat messages as read
      *
-     * @param string $userId
      * @param string $roomId
      * @param array $messageIds
+     * @param string|null $userId
      * @return mixed
+     * @throws \InvalidArgumentException
      */
-    public function markAsRead(string $userId, string $roomId, array $messageIds)
+    public function markAsRead(string $roomId, array $messageIds, string $userId = null)
     {
         return $this->fetch(
             Route::post('user/{userId}/rooms/{roomId}/unreadItems')
-                ->withMany(['userId' => $userId, 'roomId' => $roomId])
+                ->withMany(['userId' => $userId ?? $this->currentUserId(), 'roomId' => $roomId])
                 ->withBody('chat', $messageIds)
         );
     }
@@ -83,14 +85,15 @@ class Users extends AbstractResource
     /**
      * List of the user's GitHub Organisations and their respective Room if available.
      *
-     * @param string $userId
+     * @param string|null $userId
      * @return mixed
+     * @throws \InvalidArgumentException
      */
-    public function orgs(string $userId)
+    public function orgs(string $userId = null)
     {
         return $this->fetch(
             Route::get('user/{userId}/orgs')
-                ->with('userId', $userId)
+                ->with('userId', $userId ?? $this->currentUserId())
         );
     }
 
@@ -99,28 +102,30 @@ class Users extends AbstractResource
      *
      * Note: It'll return private repositories if the current user has granted Gitter privileges to access them.
      *
-     * @param string $userId
+     * @param string|null $userId
      * @return mixed
+     * @throws \InvalidArgumentException
      */
-    public function repos(string $userId)
+    public function repos(string $userId = null)
     {
         return $this->fetch(
             Route::get('user/{userId}/repos')
-                ->with('userId', $userId)
+                ->with('userId', $userId ?? $this->currentUserId())
         );
     }
 
     /**
      * List of Gitter channels nested under the current user.
      *
-     * @param string $userId
+     * @param string|null $userId
      * @return mixed
+     * @throws \InvalidArgumentException
      */
-    public function channels(string $userId)
+    public function channels(string $userId = null)
     {
         return $this->fetch(
             Route::get('user/{userId}/channels')
-                ->with('userId', $userId)
+                ->with('userId', $userId ?? $this->currentUserId())
         );
     }
 }

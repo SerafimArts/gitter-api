@@ -70,6 +70,15 @@ abstract class AbstractResource implements ResourceInterface
     }
 
     /**
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    protected function currentUserId(): string
+    {
+        return $this->currentUser()['id'];
+    }
+
+    /**
      * @return $this
      * @throws \InvalidArgumentException
      */
