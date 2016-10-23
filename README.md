@@ -4,16 +4,25 @@
 [![Coverage Status](https://coveralls.io/repos/github/SerafimArts/gitter-api/badge.svg?branch=master)](https://coveralls.io/github/SerafimArts/gitter-api?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/SerafimArts/gitter-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/SerafimArts/gitter-api/?branch=master)
 
+> This is **not stable** master branch.
+> See the [latest stable version](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
 
-Support adapters:
-- React ([reactphp/react](https://github.com/reactphp/react))
+- [Version 3.0.x](https://github.com/SerafimArts/gitter-api/tree/master)
+- [Version 2.1.x](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
+- [Version 2.0.x](https://github.com/SerafimArts/gitter-api/tree/8ad7f4d06c5f8196ada5798799cd8c1d5f55a974)
+- [Version 1.1.x](https://github.com/SerafimArts/gitter-api/tree/26c3640a1d933db8ad27bd3c10f8bc42ff936c47)
+- [Version 1.0.x](https://github.com/SerafimArts/gitter-api/tree/f955ade02128e868d494baf0acc021bc257c1807)
+
+## Adapters
+
+- **React** ([reactphp/react](https://github.com/reactphp/react))
     - Sync: `array`
     - Async: `React\Promise\PromiseInterface`
     - Streaming: `Gitter\Support\Observer`
     
     Installation: **included (default)**
     
-- GuzzleHttp ([guzzle/guzzle](https://github.com/guzzle/guzzle)) 
+- **GuzzleHttp** ([guzzle/guzzle](https://github.com/guzzle/guzzle)) 
     - Sync: `array`
     - Async: `GuzzleHttp\Promise\PromiseInterface` (blocking!)
     - Streaming: `\Generator` (blocking!)
@@ -21,13 +30,8 @@ Support adapters:
     Installation: `composer require guzzlehttp/guzzle`
 
 
-> This is **not stable** master branch.
-> See the [latest stable version](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
+## Creating a Gitter Client
 
-
-## Short API description 
-
-### Creating a Gitter Client
 
 ```php
 use Gitter\Client;
@@ -41,7 +45,7 @@ $client = new Client($token, $logger); // $logger are instance of \Psr\Log\Logge
 $client->connect(); // Locks current runtime and starts an EventLoop
 ```
 
-### Resources
+## Resources
 
 1) `$client->resource->action(...)`
 
@@ -63,7 +67,7 @@ $client->connect();
 
 Where `fetchType` are one of `"sync"`, `"async"` or `"stream"`.
 
-#### Sync 
+### Sync 
 
 Sync requests are block event loop "tick" 
     and fetch all data from external API resource. 
@@ -78,7 +82,7 @@ foreach ($response as $room) {
 $client->connect();
 ```
 
-#### Async 
+### Async 
 
 Async requests are not blocks an event loop and returns a Promise object (callback).
 After fetching all data Promise will be close.
@@ -95,7 +99,7 @@ $promise->then(function($response) {
 $client->connect();
 ```
 
-#### Streaming 
+### Streaming 
 
 Streaming requests like an async but cant be resolved. Usually for long-polling answers. 
 
@@ -111,7 +115,9 @@ $observer->subscribe(function($response) {
 $client->connect();
 ```
 
-### Custom routing
+## Available resources
+
+## Custom routing
 
 ```php
 $route = Route::get('rooms/{roomId}/chatMessages')
