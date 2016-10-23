@@ -81,7 +81,7 @@ $client->connect();
 
 ### Async 
 
-Async requests are not blocks an event loop and returns a Promise object (callback).
+Async requests does not block an event loop and returns a Promise object (callback).
 After fetching all data Promise will be close.
 
 ```php
@@ -98,7 +98,7 @@ $client->connect();
 
 ### Streaming 
 
-Streaming requests like an async but cant be resolved. Usually for long-polling answers. 
+Streaming requests are like async ones, but can't be resolved. Usually for long-polling answers. 
 
 ```php
 $observer = $client->rooms->stream->all(); // Observer
