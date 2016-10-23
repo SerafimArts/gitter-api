@@ -110,8 +110,6 @@ $observer->subscribe(function($response) {
 $client->connect();
 ```
 
-## Available resources
-
 ## Custom routing
 
 ```php
