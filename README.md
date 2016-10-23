@@ -8,6 +8,10 @@
 - [Version 1.1.x](https://github.com/SerafimArts/gitter-api/tree/26c3640a1d933db8ad27bd3c10f8bc42ff936c47)
 - [Version 1.0.x](https://github.com/SerafimArts/gitter-api/tree/f955ade02128e868d494baf0acc021bc257c1807)
 
+## Installation
+
+`composer require serafim/gitter-api`
+
 ## Adapters
 
 - **React** ([reactphp/react](https://github.com/reactphp/react))
