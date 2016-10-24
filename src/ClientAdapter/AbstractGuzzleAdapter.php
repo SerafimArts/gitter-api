@@ -19,6 +19,7 @@ use function GuzzleHttp\json_decode as json;
 /**
  * Class AbstractGuzzleAdapter
  * @package Gitter\ClientAdapter
+ * @deprecated Guzzle adapters can be removed in future versions
  */
 abstract class AbstractGuzzleAdapter implements AdapterInterface, Loggable
 {
