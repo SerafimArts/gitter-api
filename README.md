@@ -238,14 +238,14 @@ List of Gitter channels nested under the user.
 
 - `$client->users->channels([string $userId])`
 
-### Custom WebHook Notifications
+## Custom WebHook Notifications
 
 Create a "Custom Webhook": 
-1) Open your chat
-2) Click on "Room Settings" button
-3) Click on "Integrations"
-4) Select "Custom"
-5) Remember yor Hook Id, like `2b66cf4653faa342bbe8` inside `https://webhooks.gitter.im/e/` url.
+- Open your chat
+- Click on "Room Settings" button
+- Click on "Integrations"
+- Select "Custom"
+- Remember yor Hook Id, like `2b66cf4653faa342bbe8` inside `https://webhooks.gitter.im/e/` url.
 
 ```
 $client->notify($hookId)
