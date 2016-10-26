@@ -42,7 +42,9 @@ class AsyncBuzzAdapter extends AbstractBuzzAdapter implements AsyncAdapterInterf
             if (json_last_error() === JSON_ERROR_NONE) {
                 $deferred->resolve($data);
             } else {
-                $deferred->reject(new \InvalidArgumentException(json_last_error_msg()));
+                $deferred->reject(new \InvalidArgumentException(
+                    json_last_error_msg() . ': ' . $response->getBody()
+                ));
             }
 
         }, function(\Throwable $throwable) use ($deferred) {
