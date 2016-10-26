@@ -17,15 +17,13 @@ class WebHooksTest extends TestCase
 
     public function testErrorNotify()
     {
-        $this->client()->notify($this->debugHookId())
-            ->levelError()
-            ->send('ERROR');
+        $this->client()->notify($this->debugHookId())->error()
+            ->send('Travis CI Unit error notification test');
     }
 
     public function testNormalNotify()
     {
-        $this->client()->notify($this->debugHookId())
-            ->levelInfo()
-            ->send('ERROR');
+        $this->client()->notify($this->debugHookId())->info()
+            ->send('Travis CI Unit info notification test');
     }
 }
