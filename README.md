@@ -247,7 +247,7 @@ Create a "Custom Webhook":
 - Select "Custom"
 - Remember yor Hook Id, like `2b66cf4653faa342bbe8` inside `https://webhooks.gitter.im/e/` url.
 
-```
+```php
 $client->notify($hookId)
     // ->error() - Setup "Error" notify level
     // ->info() - Setup "Info" notify level
