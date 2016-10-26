@@ -89,7 +89,15 @@ class Client implements Loggable
         $this->adapters = new AdaptersStorage($this);
 
         $this->logger->info(sprintf('Gitter Client: %s', static::VERSION));
+    }
 
+    /**
+     * @param string $hookId
+     * @return WebHook
+     */
+    public function notify(string $hookId): WebHook
+    {
+        return new WebHook($this, $hookId);
     }
 
     /**

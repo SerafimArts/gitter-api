@@ -104,6 +104,14 @@ class Route
     }
 
     /**
+     * @return Route
+     */
+    public function toWebhook(): Route
+    {
+        return $this->to('https://webhooks.gitter.im/e/');
+    }
+
+    /**
      * @param string|null $route
      * @return string
      */

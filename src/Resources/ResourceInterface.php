@@ -15,9 +15,5 @@ use Gitter\Client;
  */
 interface ResourceInterface
 {
-    /**
-     * ResourceInterface constructor.
-     * @param Client $client
-     */
-    public function __construct(Client $client);
+
 }

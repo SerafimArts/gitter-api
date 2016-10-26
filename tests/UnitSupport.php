@@ -31,7 +31,15 @@ trait UnitSupport
      */
     public function debugRoomId(): string
     {
-        return $_ENV['debug_room_id'] ?? $_SERVER['debug_room_id'] ?? '56019a060fc9f982beb17a5e';
+        return $_ENV['debug_room_id'] ?? $_SERVER['debug_room_id'] ?? '';
+    }
+
+    /**
+     * @return string
+     */
+    public function debugHookId(): string
+    {
+        return $_ENV['debug_hook_id'] ?? $_SERVER['debug_hook_id'] ?? '';
     }
     
     /**
