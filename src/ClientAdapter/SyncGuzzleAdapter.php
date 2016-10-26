@@ -15,6 +15,7 @@ use function GuzzleHttp\json_decode as json;
 /**
  * Class SyncGuzzleAdapter
  * @package Gitter\ClientAdapter
+ * @deprecated Guzzle adapters can be removed in future versions
  */
 class SyncGuzzleAdapter extends AsyncGuzzleAdapter implements SyncAdapterInterface
 {

@@ -13,10 +13,9 @@ use Gitter\Support\JsonStream;
 use GuzzleHttp\RequestOptions;
 
 /**
- * !!! This is BLOCKING guzzle stream !!!
- *
  * Class StreamGuzzleAdapter
  * @package Gitter\ClientAdapter
+ * @deprecated Guzzle adapters can be removed in future versions
  */
 class StreamGuzzleAdapter extends AbstractGuzzleAdapter implements StreamingAdapterInterface
 {

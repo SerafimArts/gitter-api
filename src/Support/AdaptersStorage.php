@@ -11,7 +11,7 @@ use Gitter\Client;
 use Gitter\ClientAdapter\SyncBuzzAdapter;
 use Gitter\ClientAdapter\AdapterInterface;
 use Gitter\ClientAdapter\AsyncBuzzAdapter;
-use Gitter\ClientAdapter\StreamGuzzleAdapter;
+use Gitter\ClientAdapter\StreamBuzzAdapter;
 
 /**
  * Class AdaptersStorage
@@ -25,7 +25,7 @@ class AdaptersStorage
     private $defaultAdapters = [
         AdapterInterface::TYPE_SYNC   => SyncBuzzAdapter::class,
         AdapterInterface::TYPE_ASYNC  => AsyncBuzzAdapter::class,
-        AdapterInterface::TYPE_STREAM => StreamGuzzleAdapter::class,
+        AdapterInterface::TYPE_STREAM => StreamBuzzAdapter::class,
     ];
 
     /**

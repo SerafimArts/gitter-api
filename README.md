@@ -1,7 +1,11 @@
 # Gitter API Client 3.0 
 
+[![Latest Stable Version](https://poser.pugx.org/serafim/gitter-api/v/stable)](https://packagist.org/packages/serafim/gitter-api)
 [![https://travis-ci.org/SerafimArts/gitter-api](https://travis-ci.org/SerafimArts/gitter-api.svg)](https://travis-ci.org/SerafimArts/gitter-api/builds)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/SerafimArts/gitter-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/SerafimArts/gitter-api/?branch=master)
+[![License](https://poser.pugx.org/serafim/gitter-api/license)](https://packagist.org/packages/serafim/gitter-api)
+[![Total Downloads](https://poser.pugx.org/serafim/gitter-api/downloads)](https://packagist.org/packages/serafim/gitter-api)
+
 
 - [Version 2.1.x](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
 - [Version 2.0.x](https://github.com/SerafimArts/gitter-api/tree/8ad7f4d06c5f8196ada5798799cd8c1d5f55a974)
@@ -81,7 +85,7 @@ $client->connect();
 
 ### Async 
 
-Async requests are not blocks an event loop and returns a Promise object (callback).
+Async requests does not block an event loop and returns a Promise object (callback).
 After fetching all data Promise will be close.
 
 ```php
@@ -98,7 +102,7 @@ $client->connect();
 
 ### Streaming 
 
-Streaming requests like an async but cant be resolved. Usually for long-polling answers. 
+Streaming requests are like async ones, but can't be resolved. Usually for long-polling answers. 
 
 ```php
 $observer = $client->rooms->stream->all(); // Observer
