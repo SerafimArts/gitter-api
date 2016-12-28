@@ -27,6 +27,7 @@
         "psr/log": "~1.0"
     },
     "require-dev": {
+        "monolog/monolog": "~1.0",
         "phpunit/phpunit": "~5.5",
         "phpdocumentor/phpdocumentor": "^2.0"
     },
