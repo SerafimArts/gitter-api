@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of GitterApi package.
  *
@@ -7,14 +7,13 @@
  */
 namespace Gitter\Support;
 
-use Monolog\Logger;
 use Psr\Http\Message\StreamInterface;
 
 /**
  * Class JsonStream
  * @package Gitter\Support
  */
-class JsonStream implements Loggable
+class JsonStream
 {
     /**
      * @var int
@@ -79,7 +78,6 @@ class JsonStream implements Loggable
      * @param string $data
      * @param \Closure|null $callback
      * @return mixed|null
-     * @throws \Psr\Log\InvalidArgumentException
      */
     public function push(string $data, \Closure $callback = null)
     {
@@ -119,7 +117,6 @@ class JsonStream implements Loggable
      * @param StreamInterface $stream
      * @return \Generator
      * @throws \OutOfBoundsException
-     * @throws \Psr\Log\InvalidArgumentException
      * @throws \RuntimeException
      */
     public function stream(StreamInterface $stream): \Generator
@@ -134,24 +131,5 @@ class JsonStream implements Loggable
 
             $this->checkSize();
         }
-    }
-
-    /**
-     * @internal
-     * @param string $message
-     * @param int $level
-     * @return Loggable
-     * @throws \Psr\Log\InvalidArgumentException
-     */
-    public function log(string $message, int $level = Logger::INFO): Loggable
-    {
-        if ($this->logger === null) {
-            file_put_contents('php://output', Logger::getLevelName($level) . ': ' . $message . "\n");
-            flush();
-        } else {
-            $this->logger->log($message, $level);
-        }
-
-        return $this;
     }
 }

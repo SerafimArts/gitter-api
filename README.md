@@ -1,4 +1,4 @@
-# Gitter API Client 3.0 
+# Gitter API Client 4.0 
 
 [![Latest Stable Version](https://poser.pugx.org/serafim/gitter-api/v/stable)](https://packagist.org/packages/serafim/gitter-api)
 [![https://travis-ci.org/SerafimArts/gitter-api](https://travis-ci.org/SerafimArts/gitter-api.svg)](https://travis-ci.org/SerafimArts/gitter-api/builds)
@@ -7,6 +7,7 @@
 [![Total Downloads](https://poser.pugx.org/serafim/gitter-api/downloads)](https://packagist.org/packages/serafim/gitter-api)
 
 
+- [Version 3.0.x](https://github.com/SerafimArts/gitter-api/commit/5bf22f2b5bbc517600937fbbaa44037a89688a82)
 - [Version 2.1.x](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
 - [Version 2.0.x](https://github.com/SerafimArts/gitter-api/tree/8ad7f4d06c5f8196ada5798799cd8c1d5f55a974)
 - [Version 1.1.x](https://github.com/SerafimArts/gitter-api/tree/26c3640a1d933db8ad27bd3c10f8bc42ff936c47)
@@ -15,23 +16,6 @@
 ## Installation
 
 `composer require serafim/gitter-api`
-
-## Adapters
-
-- **React** ([reactphp/react](https://github.com/reactphp/react))
-    - Sync: `array`
-    - Async: `React\Promise\PromiseInterface`
-    - Streaming: `Gitter\Support\Observer`
-    
-    Installation: **included (default)**
-    
-- **GuzzleHttp** ([guzzle/guzzle](https://github.com/guzzle/guzzle)) 
-    - Sync: `array`
-    - Async: `GuzzleHttp\Promise\PromiseInterface` (blocking!)
-    - Streaming: `\Generator` (blocking!)
-    
-    Installation: `composer require guzzlehttp/guzzle`
-
 
 ## Creating a Gitter Client
 
@@ -45,74 +29,40 @@ $client = new Client($token, $logger); // $logger are instance of \Psr\Log\Logge
 
 // ... SOME ACTIONS ...
 
-$client->connect(); // Locks current runtime and starts an EventLoop
+$client->connect(); // Locks current runtime and starts an EventLoop (for streaming requests)
 ```
 
 ## Resources
 
-Example: `$client->resource->action(...)` or `$client->resource->fetchType->action(...)`
+```php
+// $client = new \Gitter\Client('token');
 
-- `resource` are one of `"rooms"`, `"users"`, `"groups"` or `"messages"`
-- `fetchType` are one of `"sync"`, `"async"` or `"stream"`
-- `action` are specify for every resource
+$client->groups(); // Groups resource
+$client->messages(); // Messages resource
+$client->rooms(); // Rooms resource
+$client->users(); // Users resource
+```
+
+### Example
 
 ```php
-$response = $client->rooms->all(); // "rooms" - resource, "all" - action
+$response = $client->rooms()->all();
 
 foreach ($response as $room) {
     var_dump($room);
 }
-
-// ...
-
-$client->connect();
-```
-
-### Sync 
-
-Sync requests are block event loop "tick" 
-    and fetch all data from external API resource. 
-
-```php
-$response = $client->rooms->sync->all(); // array
-
-foreach ($response as $room) {
-    var_dump($room);
-}
-
-$client->connect();
-```
-
-### Async 
-
-Async requests does not block an event loop and returns a Promise object (callback).
-After fetching all data Promise will be close.
-
-```php
-$promise = $client->rooms->async->all(); // Promise
-
-$promise->then(function($response) { 
-    foreach ($response as $room) {
-        var_dump($room);
-    }
-});
-
-$client->connect();
 ```
 
 ### Streaming 
 
-Streaming requests are like async ones, but can't be resolved. Usually for long-polling answers. 
-
 ```php
-$observer = $client->rooms->stream->all(); // Observer
+$observer = $client->rooms()->messages('roomId'); // Observer
 
-$observer->subscribe(function($response) {
-    foreach ($response as $room) {
-        var_dump($room);
-    }
+$observer->subscribe(function ($message) {
+    var_dump($message);
 });
 
+// Connect to stream!
 $client->connect();
 ```
 
@@ -122,121 +72,122 @@ $client->connect();
 
 List groups the current user is in.
 
-- `$client->groups->all()`
+- `$client->groups()->all(): array`
 
 List of rooms nested under the specified group.
 
-- `$client->groups->rooms(string $roomId)`
+- `$client->groups()->rooms(string $roomId): array`
 
 ### Messages
 
-List of messages in a room in historical reversed order. **Only synchronous driver** 
+List of messages in a room in historical reversed order.
 
-- `$client->messages->all(string $roomId[, string $query]): \Generator`
+- `$client->messages()->all(string $roomId[, string $query]): \Generator`
 
 There is also a way to retrieve a single message using its id.
 
-- `$client->messages->find(string $roomId, string $messageId)`
+- `$client->messages()->find(string $roomId, string $messageId): array`
 
 Send a message to a room.
 
-- `$client->messages->create(string $roomId, string $content)`
+- `$client->messages()->create(string $roomId, string $content): array`
 
 Update a message.
 
-- `$client->messages->update(string $roomId, string $messageId, string $content)`
+- `$client->messages()->update(string $roomId, string $messageId, string $content): array`
 
 Delete a message.
 
-- `$client->messages->delete(string $roomId, string $messageId)`
+- `$client->messages()->delete(string $roomId, string $messageId): array`
 
 ### Rooms
 
 List rooms the current user is in.
 
-- `$client->rooms->all([string $query])`
+- `$client->rooms()->all([string $query]): array`
 
 Join user into a room.
 
-- `$client->rooms->joinUser(string $roomId, string $userId)`
+- `$client->rooms()->joinUser(string $roomId, string $userId): array`
 
 Join current user into a room.
 
-- `$client->rooms->join(string $roomId)`
+- `$client->rooms()->join(string $roomId): array`
 
 Join current user into a room by room name (URI).
 
-- `$client->rooms->joinByName(string $name)`
+- `$client->rooms()->joinByName(string $name): array`
 
 Find room by room name (URI).
 
-- `$client->rooms->findByName(string $name)`
+- `$client->rooms()->findByName(string $name): array`
 
 Kick user from target room.
 
-- `$client->rooms->kick(string $roomId, string $userId)`
+- `$client->rooms()->kick(string $roomId, string $userId): array`
 
 This can be self-inflicted to leave the the room and remove room from your left menu.
 
-- `$client->rooms->leave(string $roomId)`
+- `$client->rooms()->leave(string $roomId): array`
 
 Sets up a new topic of target room.
 
-- `$client->rooms->topic(string $roomId, string $topic)`
+- `$client->rooms()->topic(string $roomId, string $topic): array`
 
 Sets the room is indexed by search engines.
 
-- `$client->rooms->searchIndex(string $roomId, bool $enabled)`
+- `$client->rooms()->searchIndex(string $roomId, bool $enabled): array`
 
 Sets the tags that define the room
 
-- `$client->rooms->tags(string $roomId, array $tags)`
+- `$client->rooms()->tags(string $roomId, array $tags): array`
 
 If you hate one of the rooms - you can destroy it!
 
-- `$client->rooms->delete(string $roomId)`
+- `$client->rooms()->delete(string $roomId): array`
 
-List of users currently in the room. **Only synchronous driver**
+List of users currently in the room. 
 
-- `$client->rooms->users(string $roomId[, string $query]: \Generator`
+- `$client->rooms()->users(string $roomId[, string $query]: \Generator`
 
-Use the streaming API to listen events. **Only streaming driver**
+Use the streaming API to listen events. 
 
-- `$client->rooms->events(string $roomId): Observer`
+- `$client->rooms()->events(string $roomId): Observer`
 
-Use the streaming API to listen messages. **Only streaming driver**
+Use the streaming API to listen messages. 
 
-- `$client->rooms->messages(string $roomId): Observer`
+- `$client->rooms()->messages(string $roomId): Observer`
 
 ### Users
 
 Returns the current user logged in.
 
-- `$client->users->current(): array`
+- `$client->users()->current(): array`
+- `$client->users()->currentUserId(): string`
 
 List of Rooms the user is part of.
 
-- `$client->users->rooms([string $userId])`
+- `$client->users()->rooms([string $userId]): array`
 
 You can retrieve unread items and mentions using the following endpoint.
 
-- `$client->users->unreadItems(string $roomId[, string $userId])`
+- `$client->users()->unreadItems(string $roomId[, string $userId]): array`
 
 There is an additional endpoint nested under rooms that you can use to mark chat messages as read
 
-- `$client->users->markAsRead(string $roomId, array $messageIds[, string $userId])`
+- `$client->users()->markAsRead(string $roomId, array $messageIds[, string $userId]): array`
 
 List of the user's GitHub Organisations and their respective Room if available.
 
-- `$client->users->orgs([string $userId])`
+- `$client->users()->orgs([string $userId]): array`
 
 List of the user's GitHub Repositories and their respective Room if available.
 
-- `$client->users->repos([string $userId])`
+- `$client->users()->repos([string $userId]): array`
 
 List of Gitter channels nested under the user.
 
-- `$client->users->channels([string $userId])`
+- `$client->users()->channels([string $userId]): array`
 
 ## Custom WebHook Notifications
 
@@ -249,8 +200,9 @@ Create a "Custom Webhook":
 
 ```php
 $client->notify($hookId)
-    // ->error() - Setup "Error" notify level
-    // ->info() - Setup "Info" notify level
+    // ->error($message) - Send "Error" message
+    // ->info($message) - Send "Info" message
+    // ->withLevel(...) - Sets up level
     ->send('Your message with markdown'); // Send message with markdown content
 ```
 
@@ -263,7 +215,7 @@ $route = Route::get('rooms/{roomId}/chatMessages')
     
 // Contains "GET https://stream.gitter.im/v1/rooms/.../chatMessages" url
 
-$client->request->stream->to($route)->subscribe(function($message) {
+$client->viaStream()->request($route)->subscribe(function($message) {
      var_dump($message);
     // Subscribe on every message in target room (Realtime subscribtion)
 });

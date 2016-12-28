@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of GitterApi package.
  *
@@ -31,6 +31,7 @@ class Observer
 
     /**
      * @param $data
+     * @return void
      */
     public function fire($data)
     {

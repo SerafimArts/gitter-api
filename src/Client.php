@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 /**
  * This file is part of GitterApi package.
  *
@@ -7,44 +7,33 @@
  */
 namespace Gitter;
 
-use Monolog\Logger;
-use Psr\Log\NullLogger;
+use Gitter\Adapters\AdapterInterface;
+use Gitter\Adapters\HttpAdapter;
+use Gitter\Adapters\StreamAdapter;
+use Gitter\Adapters\StreamAdapterInterface;
+use Gitter\Adapters\SyncAdapterInterface;
+use Gitter\Resources\Groups;
+use Gitter\Resources\Messages;
+use Gitter\Resources\ResourceInterface;
 use Gitter\Resources\Rooms;
 use Gitter\Resources\Users;
 use Gitter\Support\Loggable;
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
-use Gitter\Resources\Common;
-use Gitter\Resources\Groups;
-use Gitter\Resources\Messages;
-use Serafim\Properties\Properties;
+use Psr\Log\NullLogger;
+use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
-use Gitter\Support\AdaptersStorage;
-use Gitter\Resources\ResourceInterface;
-use React\EventLoop\Factory as LoopFactory;
 
 /**
  * Class Client
  * @package Gitter
- *
- * @property-read string $token
- * @property-read LoopInterface $loop
- * @property-read AdaptersStorage $adapters
- *
- * @property-read Common|ResourceInterface $request
- *
- * @property-read Rooms|ResourceInterface $rooms
- * @property-read Users|ResourceInterface $users
- * @property-read Groups|ResourceInterface $groups
- * @property-read Messages|ResourceInterface $messages
  */
 class Client implements Loggable
 {
-    use Properties;
-
     /**
      * @var string
      */
-    const VERSION = '3.0.2';
+    const VERSION = '4.0.0';
 
     /**
      * @var string
@@ -52,52 +41,32 @@ class Client implements Loggable
     protected $token;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @var LoopInterface
      */
     protected $loop;
 
     /**
-     * @var AdaptersStorage
+     * @var array
      */
-    protected $adapters;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var array|ResourceInterface[]
-     */
-    private $resources = [];
+    private $storage = [];
 
     /**
      * Client constructor.
      * @param string $token
-     * @param LoggerInterface $logger
      */
     public function __construct(string $token, LoggerInterface $logger = null)
     {
         $this->token = $token;
-        $this->loop  = LoopFactory::create();
+        $this->loop = Factory::create();
 
-        if ($logger === null) {
-            $logger = new NullLogger();
+        if (null === ($this->logger = $logger)) {
+            $this->logger = new NullLogger();
         }
-
-        $this->logger   = $logger;
-        $this->adapters = new AdaptersStorage($this);
-
-        $this->logger->info(sprintf('Gitter Client: %s', static::VERSION));
-    }
-
-    /**
-     * @param string $hookId
-     * @return WebHook
-     */
-    public function notify(string $hookId): WebHook
-    {
-        return new WebHook($this, $hookId);
     }
 
     /**
@@ -113,73 +82,107 @@ class Client implements Loggable
     }
 
     /**
+     * @param LoggerInterface|null $logger
+     * @return LoggerInterface
+     */
+    public function logger(LoggerInterface $logger = null): LoggerInterface
+    {
+        if ($logger !== null) {
+            $this->logger = $logger;
+        }
+
+        return $this->logger;
+    }
+
+    /**
+     * @param string|null $token
+     * @return string
+     */
+    public function token(string $token = null): string
+    {
+        if ($token !== null) {
+            $this->token = $token;
+        }
+
+        return $this->token;
+    }
+
+    /**
+     * @return SyncAdapterInterface|AdapterInterface
+     */
+    public function viaHttp(): SyncAdapterInterface
+    {
+        return new HttpAdapter($this);
+    }
+
+    /**
+     * @return StreamAdapterInterface|AdapterInterface
+     */
+    public function viaStream(): StreamAdapterInterface
+    {
+        return new StreamAdapter($this, $this->loop);
+    }
+
+    /**
+     * @param LoopInterface|null $loop
+     * @return LoopInterface
+     */
+    public function loop(LoopInterface $loop = null): LoopInterface
+    {
+        if ($loop !== null) {
+            $this->loop = $loop;
+        }
+
+        return $this->loop;
+    }
+
+    /**
      * @return void
      */
     public function connect()
     {
-        $this->logger->info('Starting');
         $this->loop->run();
     }
 
     /**
-     * @return void
+     * @return Groups
      */
-    public function disconnect()
+    public function groups(): Groups
     {
-        $this->logger->info('Stopping');
-        $this->loop->stop();
+        return new Groups($this);
     }
 
     /**
-     * @return Messages|ResourceInterface
+     * @return Messages
      */
-    protected function getMessages(): Messages
+    public function messages(): Messages
     {
-        return $this->resource(Messages::class);
+        return new Messages($this);
     }
 
     /**
-     * @return Groups|ResourceInterface
+     * @return Rooms
      */
-    protected function getGroups(): Groups
+    public function rooms(): Rooms
     {
-        return $this->resource(Groups::class);
+        return new Rooms($this);
     }
 
     /**
-     * @return Rooms|ResourceInterface
+     * @return Users
      */
-    protected function getRooms(): Rooms
+    public function users(): Users
     {
-        return $this->resource(Rooms::class);
+        return new Users($this);
     }
 
     /**
-     * @return Users|ResourceInterface
+     * @param string $hookId
+     * @return WebHook
+     * @throws \InvalidArgumentException
      */
-    protected function getUsers(): Users
+    public function notify(string $hookId): WebHook
     {
-        return $this->resource(Users::class);
-    }
-
-    /**
-     * @return Common|ResourceInterface
-     */
-    protected function getRequest(): Common
-    {
-        return $this->resource(Common::class);
-    }
-
-    /**
-     * @param string $name
-     * @return ResourceInterface
-     */
-    private function resource(string $name)
-    {
-        if (!array_key_exists($name, $this->resources)) {
-            $this->resources[$name] = new $name($this);
-        }
-
-        return $this->resources[$name];
+        return new WebHook($this, $hookId);
     }
 }

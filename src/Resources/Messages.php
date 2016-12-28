@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of GitterApi package.
  *
@@ -8,7 +8,6 @@
 namespace Gitter\Resources;
 
 use Gitter\Route;
-use Gitter\ClientAdapter\AdapterInterface;
 
 /**
  * Messages represent individual chat messages sent to a room. They are a sub-resource of a room.
@@ -43,8 +42,6 @@ class Messages extends AbstractResource
      */
     public function all(string $roomId, string $query = null): \Generator
     {
-        $adapter  = $this->using(AdapterInterface::TYPE_SYNC);
-
         $beforeId = null;
         $limit    = 100;
 
@@ -61,7 +58,7 @@ class Messages extends AbstractResource
                 $route->with('q', $query);
             }
 
-            $response = array_reverse($adapter->request($route));
+            $response = array_reverse($this->fetch($route));
 
             foreach ($response as $message) {
                 $beforeId = $message['id'];

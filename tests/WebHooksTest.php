@@ -13,17 +13,23 @@ namespace Gitter\Tests;
  */
 class WebHooksTest extends TestCase
 {
-    use UnitSupport;
-
+    /**
+     * @return void
+     */
     public function testErrorNotify()
     {
-        $this->client()->notify($this->debugHookId())->error()
-            ->send('Travis CI Unit error notification test');
+        $this->client()
+            ->notify($this->debugHookId())
+            ->error('Travis CI Unit error notification test');
     }
 
+    /**
+     * @return void
+     */
     public function testNormalNotify()
     {
-        $this->client()->notify($this->debugHookId())->info()
-            ->send('Travis CI Unit info notification test');
+        $this->client()
+            ->notify($this->debugHookId())
+            ->info('Travis CI Unit info notification test');
     }
 }

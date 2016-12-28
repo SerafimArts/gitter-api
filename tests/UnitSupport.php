@@ -41,15 +41,29 @@ trait UnitSupport
     {
         return $_ENV['debug_hook_id'] ?? $_SERVER['debug_hook_id'] ?? '';
     }
+
+    /**
+     * @return string
+     */
+    public function userId(): string
+    {
+        return $this->client()->users()->currentUserId();
+    }
+
+    private $client;
     
     /**
      * @return Client
      */
     public function client()
     {
-        $logger = new Logger('phpunit');
-        $logger->pushHandler(new StreamHandler(STDOUT, Logger::DEBUG));
+        if ($this->client === null) {
+            $logger = new Logger('phpunit');
+            $logger->pushHandler(new StreamHandler(STDOUT, Logger::DEBUG));
 
-        return new Client($this->token(), $logger);
+            $this->client = new Client($this->token(), $logger);
+        }
+
+        return $this->client;
     }
 }

@@ -21,19 +21,14 @@
         "ext-sockets": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
+        "guzzlehttp/guzzle": ">=5.0",
         "react/event-loop": "^0.4",
-        "clue/buzz-react": "^1.0",
-        "clue/block-react": "^1.0",
-        "monolog/monolog": "^1.21",
-        "serafim/properties": "^1.0"
+        "clue/buzz-react": "^1.0"
     },
     "require-dev": {
+        "monolog/monolog": "^1.21",
         "phpunit/phpunit": "~5.5",
-        "guzzlehttp/guzzle": "^6.2",
         "phpdocumentor/phpdocumentor": "^2.0"
-    },
-    "suggest": {
-        "guzzlehttp/guzzle": "Version 6+ for API GuzzleHttp adapters support."
     },
     "autoload": {
         "psr-4": {

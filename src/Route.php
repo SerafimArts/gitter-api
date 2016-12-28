@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of GitterApi package.
  *
@@ -182,6 +182,7 @@ class Route
         if (count($this->body)) {
             return json_encode($this->body);
         }
+
         return null;
     }
 

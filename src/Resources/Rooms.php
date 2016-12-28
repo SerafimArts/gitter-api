@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of GitterApi package.
  *
@@ -9,7 +9,6 @@ namespace Gitter\Resources;
 
 use Gitter\Route;
 use Gitter\Support\Observer;
-use Gitter\ClientAdapter\AdapterInterface;
 
 /**
  * A Room in Gitter can represent a GitHub Organisation, a GitHub Repository, a Gitter Channel
@@ -61,6 +60,8 @@ class Rooms extends AbstractResource
      *
      * @param string $query Search query
      * @return mixed
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function all(string $query = null)
     {
@@ -81,6 +82,8 @@ class Rooms extends AbstractResource
      * @param string $roomId Required ID of the room you would like to join
      * @param string $userId Required ID of the user
      * @return mixed
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function joinUser(string $roomId, string $userId)
     {
@@ -95,11 +98,12 @@ class Rooms extends AbstractResource
      *
      * @param string $roomId Required ID of the room you would like to join
      * @return mixed
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
     public function join(string $roomId)
     {
-        return $this->joinUser($roomId, $this->currentUser()['id']);
+        return $this->joinUser($roomId, $this->client()->users()->currentUserId());
     }
 
     /**
@@ -113,6 +117,8 @@ class Rooms extends AbstractResource
      *
      * @param string $name Required URI of the room you would like to join
      * @return mixed
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function joinByName(string $name)
     {
@@ -124,6 +130,8 @@ class Rooms extends AbstractResource
     /**
      * @param string $name
      * @return mixed
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function findByName(string $name)
     {
@@ -136,6 +144,8 @@ class Rooms extends AbstractResource
      * @param string $roomId Required ID of the room
      * @param string $userId Required ID of the user
      * @return mixed
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function kick(string $roomId, string $userId)
     {
@@ -151,11 +161,12 @@ class Rooms extends AbstractResource
      *
      * @param string $roomId Required ID of the room
      * @return mixed
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
     public function leave(string $roomId)
     {
-        return $this->kick($roomId, $this->currentUser()['id']);
+        return $this->kick($roomId, $this->client()->users()->currentUserId());
     }
 
     /**
@@ -164,6 +175,8 @@ class Rooms extends AbstractResource
      * @param string $roomId Room id
      * @param string $topic Room topic
      * @return mixed
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function topic(string $roomId, string $topic)
     {
@@ -180,6 +193,8 @@ class Rooms extends AbstractResource
      * @param string $roomId Room id
      * @param bool $enabled Enable or disable room indexing
      * @return mixed
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function searchIndex(string $roomId, bool $enabled)
     {
@@ -196,6 +211,9 @@ class Rooms extends AbstractResource
      * @param string $roomId Room id
      * @param array $tags Target tags
      * @return mixed
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     *
      */
     public function tags(string $roomId, array $tags = [])
     {
@@ -214,6 +232,8 @@ class Rooms extends AbstractResource
      *
      * @param string $roomId Target room id
      * @return mixed
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function delete(string $roomId)
     {
@@ -229,11 +249,11 @@ class Rooms extends AbstractResource
      * @param string $roomId Target room id
      * @param string $query Optional query for users search
      * @return \Generator
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
     public function users(string $roomId, string $query = null): \Generator
     {
-        $adapter = $this->using(AdapterInterface::TYPE_SYNC);
         $skip    = 0;
         $limit   = 30;
 
@@ -249,7 +269,7 @@ class Rooms extends AbstractResource
                 $route->with('q', $query);
             }
 
-            yield from $response = $adapter->request($route);
+            yield from $response = $this->fetch($route);
 
         } while(count($response) >= $limit && ($skip += $limit));
     }
@@ -264,8 +284,7 @@ class Rooms extends AbstractResource
      */
     public function events(string $roomId): Observer
     {
-        return $this->using(AdapterInterface::TYPE_STREAM)
-            ->request(
+        return $this->stream(
                 Route::get('rooms/{roomId}/events')
                     ->with('roomId', $roomId)
                     ->toStream()
@@ -282,8 +301,7 @@ class Rooms extends AbstractResource
      */
     public function messages(string $roomId): Observer
     {
-        return $this->using(AdapterInterface::TYPE_STREAM)
-            ->request(
+        return $this->stream(
                 Route::get('rooms/{roomId}/chatMessages')
                     ->with('roomId', $roomId)
                     ->toStream()

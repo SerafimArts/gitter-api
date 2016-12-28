@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of GitterApi package.
  *
@@ -23,24 +23,50 @@ use Gitter\Route;
 class Users extends AbstractResource
 {
     /**
+     * @var array|null
+     */
+    private $currentUser;
+
+    /**
      * Returns the current user logged in.
      *
      * @return array
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
     public function current()
     {
-        return $this->currentUser();
+        if ($this->currentUser === null) {
+            $users = $this->fetch(Route::get('user'));
+
+            if (isset($users[0])) {
+                $this->currentUser = $users[0];
+            } else {
+                throw new \RuntimeException('Can not fetch current user');
+            }
+        }
+
+        return $this->currentUser;
+    }
+
+    /**
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    public function currentUserId(): string
+    {
+        return (string)$this->current()['id'];
     }
 
     /**
      * List of Rooms the user is part of.
      *
      * @param string|null $userId User id
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function rooms(string $userId = null)
+    public function rooms(string $userId = null): array
     {
         return $this->fetch(
             Route::get('user/{userId}/rooms')
@@ -53,10 +79,11 @@ class Users extends AbstractResource
      *
      * @param string $roomId
      * @param string|null $userId
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function unreadItems(string $roomId, string $userId = null)
+    public function unreadItems(string $roomId, string $userId = null): array
     {
         return $this->fetch(
             Route::get('user/{userId}/rooms/{roomId}/unreadItems')
@@ -70,10 +97,11 @@ class Users extends AbstractResource
      * @param string $roomId
      * @param array $messageIds
      * @param string|null $userId
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function markAsRead(string $roomId, array $messageIds, string $userId = null)
+    public function markAsRead(string $roomId, array $messageIds, string $userId = null): array
     {
         return $this->fetch(
             Route::post('user/{userId}/rooms/{roomId}/unreadItems')
@@ -86,10 +114,11 @@ class Users extends AbstractResource
      * List of the user's GitHub Organisations and their respective Room if available.
      *
      * @param string|null $userId
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function orgs(string $userId = null)
+    public function orgs(string $userId = null): array
     {
         return $this->fetch(
             Route::get('user/{userId}/orgs')
@@ -103,10 +132,11 @@ class Users extends AbstractResource
      * Note: It'll return private repositories if the current user has granted Gitter privileges to access them.
      *
      * @param string|null $userId
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function repos(string $userId = null)
+    public function repos(string $userId = null): array
     {
         return $this->fetch(
             Route::get('user/{userId}/repos')
@@ -118,10 +148,11 @@ class Users extends AbstractResource
      * List of Gitter channels nested under the current user.
      *
      * @param string|null $userId
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function channels(string $userId = null)
+    public function channels(string $userId = null): array
     {
         return $this->fetch(
             Route::get('user/{userId}/channels')

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of GitterApi package.
  *
@@ -37,39 +37,57 @@ class WebHook extends AbstractResource
      * WebHook constructor.
      * @param Client $client
      * @param string $hookId
+     * @throws \InvalidArgumentException
      */
     public function __construct(Client $client, string $hookId)
     {
         parent::__construct($client);
 
         $this->hookId = $hookId;
+
+        if (!$this->hookId) {
+            throw new \InvalidArgumentException('Invalid Hook Id');
+        }
     }
 
     /**
-     * @return $this|WebHook
+     * @param string $level
+     * @return WebHook
      */
-    public function error(): WebHook
+    public function withLevel(string $level): WebHook
     {
-        $this->level = static::HOOK_LEVEL_ERROR;
+        $this->level = $level;
 
         return $this;
     }
 
     /**
-     * @return $this|WebHook
+     * @param string $message
+     * @return array
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function info(): WebHook
+    public function error(string $message): array
     {
-        $this->level = static::HOOK_LEVEL_INFO;
+        return $this->withLevel(static::HOOK_LEVEL_ERROR)->send($message);
+    }
 
-        return $this;
+    /**
+     * @param string $message
+     * @return array
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     */
+    public function info(string $message): array
+    {
+        return $this->withLevel(static::HOOK_LEVEL_INFO)->send($message);
     }
 
     /**
      * @param string $type
      * @return $this|WebHook
      */
-    public function icon(string $type): WebHook
+    public function withIcon(string $type): WebHook
     {
         $this->icon = $type;
 
@@ -78,9 +96,11 @@ class WebHook extends AbstractResource
 
     /**
      * @param string $message
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function send(string $message)
+    public function send(string $message): array
     {
         return $this->fetch($this->buildRoute($message));
     }
