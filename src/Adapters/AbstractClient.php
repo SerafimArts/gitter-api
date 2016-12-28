@@ -43,4 +43,15 @@ abstract class AbstractClient implements AdapterInterface
 
         return $this;
     }
+
+    /**
+     * @param Client $client
+     * @param string $message
+     */
+    protected function debugLog(Client $client, string $message)
+    {
+        if ($client->logger !== null) {
+            $client->logger->debug($message);
+        }
+    }
 }

@@ -10,7 +10,6 @@ namespace Gitter\Adapters;
 use Gitter\Client;
 use Gitter\Route;
 use GuzzleHttp\Client as Guzzle;
-use Monolog\Logger;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -79,13 +78,18 @@ class HttpAdapter extends AbstractClient implements SyncAdapterInterface
         $options = $this->prepareRequestOptions($route);
 
         // Log request
-        $this->client->log(' -> ' . $method . ' ' . $uri . "\n body: " . ($options['body'] ?? ''), Logger::DEBUG);
+        $this->debugLog($this->client, ' -> ' . $method . ' ' . $uri);
+        if ($options['body'] ?? false) {
+            $this->debugLog($this->client, '    -> body ' . $options['body']);
+        }
+        // End log request
 
         $response = $this->guzzle->request($method, $uri, $options);
 
         // Log response
-        $this->client->log(' <- ' . $response->getStatusCode() . ' ' . $response->getReasonPhrase(), Logger::DEBUG);
-        $this->client->log('   <- ' . (string)$response->getBody(), Logger::DEBUG);
+        $this->debugLog($this->client, ' <- ' . $response->getStatusCode() . ' ' . $response->getReasonPhrase());
+        $this->debugLog($this->client, '   <- ' . (string)$response->getBody());
+        // End log response
 
         return $this->parseResponse($response);
     }

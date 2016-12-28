@@ -8,16 +8,12 @@
 namespace Gitter\Adapters;
 
 use Clue\React\Buzz\Browser;
-use Clue\React\Buzz\Io\Sender;
-use Clue\React\Buzz\Message\MessageFactory;
 use Gitter\Client;
 use Gitter\Route;
 use Gitter\Support\JsonStream;
 use Gitter\Support\Observer;
-use Monolog\Logger;
 use Psr\Http\Message\ResponseInterface;
 use React\EventLoop\ExtEventLoop;
-use React\EventLoop\Factory as EventLoop;
 use React\EventLoop\LibEventLoop;
 use React\EventLoop\LibEvLoop;
 use React\EventLoop\LoopInterface;
@@ -35,16 +31,6 @@ class StreamAdapter extends AbstractClient implements StreamAdapterInterface
      * @var Browser
      */
     private $browser;
-
-    /**
-     * @var Sender
-     */
-    private $sender;
-
-    /**
-     * @var MessageFactory
-     */
-    private $messages;
 
     /**
      * @var ExtEventLoop|LibEventLoop|LibEvLoop|StreamSelectLoop
@@ -65,10 +51,7 @@ class StreamAdapter extends AbstractClient implements StreamAdapterInterface
     {
         $this->client = $client;
         $this->loop = $loop;
-        $this->sender = Sender::createFromLoop($loop);
-        $this->messages = new MessageFactory();
-
-        $this->browser = new Browser($loop, $this->sender, $this->messages);
+        $this->browser = new Browser($loop);
     }
 
     /**
@@ -105,7 +88,7 @@ class StreamAdapter extends AbstractClient implements StreamAdapterInterface
         list($method, $uri) = [$route->method(), $route->build()];
 
         // Log request
-        $this->client->log(' -> ' . $method . ' ' . $uri, Logger::DEBUG);
+        $this->debugLog($this->client, ' -> ' . $method . ' ' . $uri);
 
         return $this->browser
             ->withOptions(['streaming' => true])
@@ -121,14 +104,14 @@ class StreamAdapter extends AbstractClient implements StreamAdapterInterface
         $json = new JsonStream();
 
         // Log response
-        $this->client->log(' <- ' . $response->getStatusCode() . ' ' . $response->getReasonPhrase(), Logger::DEBUG);
+        $this->debugLog($this->client, ' <- ' . $response->getStatusCode() . ' ' . $response->getReasonPhrase());
 
         /* @var $body ReadableStreamInterface */
         $body = $response->getBody();
 
         $body->on('data', function ($chunk) use ($json, $observer) {
             // Log response chunk
-            $this->client->log('   <- ' . $chunk, Logger::DEBUG);
+            $this->debugLog($this->client, '   <- ' . $chunk);
 
             $json->push($chunk, function ($object) use ($observer) {
                 $observer->fire($object);

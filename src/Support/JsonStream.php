@@ -8,6 +8,7 @@
 namespace Gitter\Support;
 
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class JsonStream
@@ -41,7 +42,7 @@ class JsonStream
     private $chunkSize = 1;
 
     /**
-     * @var Loggable
+     * @var LoggerInterface
      */
     private $logger;
 
@@ -55,9 +56,9 @@ class JsonStream
     }
 
     /**
-     * @param Loggable $logger
+     * @param LoggerInterface $logger
      */
-    public function setLogger(Loggable $logger)
+    public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }

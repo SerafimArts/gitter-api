@@ -16,8 +16,6 @@ use Gitter\Resources\Groups;
 use Gitter\Resources\Messages;
 use Gitter\Resources\Rooms;
 use Gitter\Resources\Users;
-use Gitter\Support\Loggable;
-use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use React\EventLoop\Factory;
@@ -37,7 +35,7 @@ use React\EventLoop\LoopInterface;
  * @property LoopInterface $loop
  *
  */
-class Client implements Loggable
+class Client
 {
     /**
      * @var string
@@ -86,18 +84,6 @@ class Client implements Loggable
     {
         $this->loop->stop();
         $this->storage = [];
-    }
-
-    /**
-     * @param string $message
-     * @param int $level
-     * @return Loggable|$this
-     */
-    public function log(string $message, int $level = Logger::INFO): Loggable
-    {
-        $this->logger->log($level, $message);
-
-        return $this;
     }
 
     /**
