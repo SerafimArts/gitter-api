@@ -202,7 +202,7 @@ class Client implements Loggable
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function auth(): array
+    public function authUser(): array
     {
         return $this->users->current();
     }
