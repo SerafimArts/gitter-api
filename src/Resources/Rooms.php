@@ -44,7 +44,7 @@ use Gitter\Support\Observer;
  *
  * @package Gitter\Resources
  */
-class Rooms extends AbstractResource
+class Rooms extends AbstractResource implements \IteratorAggregate
 {
     const GITHUB_ORG   = 'ORG';
     const ORG_CHANNEL  = 'ORG_CHANNEL';
@@ -59,11 +59,11 @@ class Rooms extends AbstractResource
      * List rooms the current user is in
      *
      * @param string $query Search query
-     * @return mixed
+     * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function all(string $query = null)
+    public function all(string $query = null): array
     {
         if ($query !== null) {
             return $this->fetch(Route::get('rooms')->with('q', $query));
@@ -81,11 +81,11 @@ class Rooms extends AbstractResource
      *
      * @param string $roomId Required ID of the room you would like to join
      * @param string $userId Required ID of the user
-     * @return mixed
+     * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function joinUser(string $roomId, string $userId)
+    public function joinUser(string $roomId, string $userId): array
     {
         return $this->fetch(
             Route::post('user/{userId}/rooms')->with('userId', $userId)
@@ -97,13 +97,13 @@ class Rooms extends AbstractResource
      * Join to target room
      *
      * @param string $roomId Required ID of the room you would like to join
-     * @return mixed
+     * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function join(string $roomId)
+    public function join(string $roomId): array
     {
-        return $this->joinUser($roomId, $this->client()->users()->currentUserId());
+        return $this->joinUser($roomId, $this->client()->authId());
     }
 
     /**
@@ -116,24 +116,22 @@ class Rooms extends AbstractResource
      * is an admin of, the room will be created automatically and the user added.
      *
      * @param string $name Required URI of the room you would like to join
-     * @return mixed
+     * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function joinByName(string $name)
+    public function joinByName(string $name): array
     {
-        return $this->fetch(
-            Route::post('rooms')->withBody('uri', $name)
-        );
+        return $this->fetch(Route::post('rooms')->withBody('uri', $name));
     }
 
     /**
      * @param string $name
-     * @return mixed
+     * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function findByName(string $name)
+    public function findByName(string $name): array
     {
         return $this->joinByName($name);
     }
@@ -143,11 +141,11 @@ class Rooms extends AbstractResource
      *
      * @param string $roomId Required ID of the room
      * @param string $userId Required ID of the user
-     * @return mixed
+     * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function kick(string $roomId, string $userId)
+    public function kick(string $roomId, string $userId): array
     {
         return $this->fetch(
             Route::delete('rooms/{roomId}/users/{userId}')
@@ -160,13 +158,13 @@ class Rooms extends AbstractResource
      * This can be self-inflicted to leave the the room and remove room from your left menu.
      *
      * @param string $roomId Required ID of the room
-     * @return mixed
+     * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function leave(string $roomId)
+    public function leave(string $roomId): array
     {
-        return $this->kick($roomId, $this->client()->users()->currentUserId());
+        return $this->kick($roomId, $this->client()->authId());
     }
 
     /**
@@ -178,7 +176,7 @@ class Rooms extends AbstractResource
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function topic(string $roomId, string $topic)
+    public function topic(string $roomId, string $topic): array
     {
         return $this->fetch(
             Route::put('rooms/{roomId}')
@@ -192,11 +190,11 @@ class Rooms extends AbstractResource
      *
      * @param string $roomId Room id
      * @param bool $enabled Enable or disable room indexing
-     * @return mixed
+     * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function searchIndex(string $roomId, bool $enabled)
+    public function searchIndex(string $roomId, bool $enabled = true): array
     {
         return $this->fetch(
             Route::put('rooms/{roomId}')
@@ -210,12 +208,12 @@ class Rooms extends AbstractResource
      *
      * @param string $roomId Room id
      * @param array $tags Target tags
-     * @return mixed
+     * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      *
      */
-    public function tags(string $roomId, array $tags = [])
+    public function tags(string $roomId, array $tags = []): array
     {
         return $this->fetch(
             Route::put('rooms/{roomId}')
@@ -231,11 +229,11 @@ class Rooms extends AbstractResource
      * @internal BE CAREFUL: THIS IS VERY DANGEROUS OPERATION.
      *
      * @param string $roomId Target room id
-     * @return mixed
+     * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function delete(string $roomId)
+    public function delete(string $roomId): array
     {
         return $this->fetch(
             Route::delete('rooms/{roomId}')
@@ -306,5 +304,19 @@ class Rooms extends AbstractResource
                     ->with('roomId', $roomId)
                     ->toStream()
             );
+    }
+
+    /**
+     * @return \Generator
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     */
+    public function getIterator(): \Generator
+    {
+        $rooms = $this->all();
+
+        foreach ($rooms as $i => $room) {
+            yield $i => $room;
+        }
     }
 }

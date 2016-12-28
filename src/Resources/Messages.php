@@ -38,6 +38,7 @@ class Messages extends AbstractResource
      * @param string $roomId Room id
      * @param string|null $query Optional search query
      * @return \Generator
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
     public function all(string $roomId, string $query = null): \Generator
@@ -48,10 +49,10 @@ class Messages extends AbstractResource
         do {
             $route = Route::get('rooms/{roomId}/chatMessages')
                 ->with('roomId', $roomId)
-                ->with('limit', $limit);
+                ->with('limit', (string)$limit);
 
             if ($beforeId !== null) {
-                $route->with('beforeId', $beforeId);
+                $route->with('beforeId', (string)$beforeId);
             }
 
             if ($query !== null) {
@@ -61,7 +62,7 @@ class Messages extends AbstractResource
             $response = array_reverse($this->fetch($route));
 
             foreach ($response as $message) {
-                $beforeId = $message['id'];
+                $beforeId = (string)$message['id'];
                 yield $message;
             }
 
@@ -73,9 +74,11 @@ class Messages extends AbstractResource
      *
      * @param string $roomId Room id
      * @param string $messageId Message id
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function find(string $roomId, string $messageId)
+    public function find(string $roomId, string $messageId): array
     {
         return $this->fetch(
             Route::get('rooms/{roomId}/chatMessages/{messageId}')
@@ -88,9 +91,11 @@ class Messages extends AbstractResource
      *
      * @param string $roomId Room id
      * @param string $content Message body
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function create(string $roomId, string $content)
+    public function create(string $roomId, string $content): array
     {
         return $this->fetch(
             Route::post('rooms/{roomId}/chatMessages')
@@ -105,9 +110,11 @@ class Messages extends AbstractResource
      * @param string $roomId Room id
      * @param string $messageId Message id
      * @param string $content New message body
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function update(string $roomId, string $messageId, string $content)
+    public function update(string $roomId, string $messageId, string $content): array
     {
         return $this->fetch(
             Route::put('rooms/{roomId}/chatMessages/{messageId}')
@@ -121,9 +128,11 @@ class Messages extends AbstractResource
      *
      * @param string $roomId
      * @param string $messageId
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function delete(string $roomId, string $messageId)
+    public function delete(string $roomId, string $messageId): array
     {
         return $this->update($roomId, $messageId, '');
     }

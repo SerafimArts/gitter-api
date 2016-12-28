@@ -34,7 +34,7 @@ class Users extends AbstractResource
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
-    public function current()
+    public function current(): array
     {
         if ($this->currentUser === null) {
             $users = $this->fetch(Route::get('user'));
@@ -51,11 +51,12 @@ class Users extends AbstractResource
 
     /**
      * @return string
+     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
     public function currentUserId(): string
     {
-        return (string)$this->current()['id'];
+        return (string)($this->current()['id'] ?? null);
     }
 
     /**

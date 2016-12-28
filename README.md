@@ -37,18 +37,16 @@ $client->connect(); // Locks current runtime and starts an EventLoop (for stream
 ```php
 // $client = new \Gitter\Client('token');
 
-$client->groups(); // Groups resource
-$client->messages(); // Messages resource
-$client->rooms(); // Rooms resource
-$client->users(); // Users resource
+$client->groups;   // Groups resource (Traversable)
+$client->messages; // Messages resource
+$client->rooms;    // Rooms resource (Traversable)
+$client->users;    // Users resource
 ```
 
 ### Example
 
 ```php
-$response = $client->rooms()->all();
-
-foreach ($response as $room) {
+foreach ($client->rooms as $room) {
     var_dump($room);
 }
 ```
@@ -56,7 +54,7 @@ foreach ($response as $room) {
 ### Streaming 
 
 ```php
-$observer = $client->rooms()->messages('roomId'); // Observer
+$observer = $client->rooms->messages('roomId'); // Observer
 
 $observer->subscribe(function ($message) {
     var_dump($message);
@@ -72,122 +70,122 @@ $client->connect();
 
 List groups the current user is in.
 
-- `$client->groups()->all(): array`
+- `$client->groups->all(): array`
 
 List of rooms nested under the specified group.
 
-- `$client->groups()->rooms(string $roomId): array`
+- `$client->groups->rooms(string $roomId): array`
 
 ### Messages
 
 List of messages in a room in historical reversed order.
 
-- `$client->messages()->all(string $roomId[, string $query]): \Generator`
+- `$client->messages->all(string $roomId[, string $query]): \Generator`
 
 There is also a way to retrieve a single message using its id.
 
-- `$client->messages()->find(string $roomId, string $messageId): array`
+- `$client->messages->find(string $roomId, string $messageId): array`
 
 Send a message to a room.
 
-- `$client->messages()->create(string $roomId, string $content): array`
+- `$client->messages->create(string $roomId, string $content): array`
 
 Update a message.
 
-- `$client->messages()->update(string $roomId, string $messageId, string $content): array`
+- `$client->messages->update(string $roomId, string $messageId, string $content): array`
 
 Delete a message.
 
-- `$client->messages()->delete(string $roomId, string $messageId): array`
+- `$client->messages->delete(string $roomId, string $messageId): array`
 
 ### Rooms
 
 List rooms the current user is in.
 
-- `$client->rooms()->all([string $query]): array`
+- `$client->rooms->all([string $query]): array`
 
 Join user into a room.
 
-- `$client->rooms()->joinUser(string $roomId, string $userId): array`
+- `$client->rooms->joinUser(string $roomId, string $userId): array`
 
 Join current user into a room.
 
-- `$client->rooms()->join(string $roomId): array`
+- `$client->rooms->join(string $roomId): array`
 
 Join current user into a room by room name (URI).
 
-- `$client->rooms()->joinByName(string $name): array`
+- `$client->rooms->joinByName(string $name): array`
 
 Find room by room name (URI).
 
-- `$client->rooms()->findByName(string $name): array`
+- `$client->rooms->findByName(string $name): array`
 
 Kick user from target room.
 
-- `$client->rooms()->kick(string $roomId, string $userId): array`
+- `$client->rooms->kick(string $roomId, string $userId): array`
 
 This can be self-inflicted to leave the the room and remove room from your left menu.
 
-- `$client->rooms()->leave(string $roomId): array`
+- `$client->rooms->leave(string $roomId): array`
 
 Sets up a new topic of target room.
 
-- `$client->rooms()->topic(string $roomId, string $topic): array`
+- `$client->rooms->topic(string $roomId, string $topic): array`
 
 Sets the room is indexed by search engines.
 
-- `$client->rooms()->searchIndex(string $roomId, bool $enabled): array`
+- `$client->rooms->searchIndex(string $roomId, bool $enabled): array`
 
 Sets the tags that define the room
 
-- `$client->rooms()->tags(string $roomId, array $tags): array`
+- `$client->rooms->tags(string $roomId, array $tags): array`
 
 If you hate one of the rooms - you can destroy it!
 
-- `$client->rooms()->delete(string $roomId): array`
+- `$client->rooms->delete(string $roomId): array`
 
 List of users currently in the room. 
 
-- `$client->rooms()->users(string $roomId[, string $query]: \Generator`
+- `$client->rooms->users(string $roomId[, string $query]: \Generator`
 
 Use the streaming API to listen events. 
 
-- `$client->rooms()->events(string $roomId): Observer`
+- `$client->rooms->events(string $roomId): Observer`
 
 Use the streaming API to listen messages. 
 
-- `$client->rooms()->messages(string $roomId): Observer`
+- `$client->rooms->messages(string $roomId): Observer`
 
 ### Users
 
 Returns the current user logged in.
 
-- `$client->users()->current(): array`
-- `$client->users()->currentUserId(): string`
+- `$client->users->current(): array`
+- `$client->users->currentUserId(): string`
 
 List of Rooms the user is part of.
 
-- `$client->users()->rooms([string $userId]): array`
+- `$client->users->rooms([string $userId]): array`
 
 You can retrieve unread items and mentions using the following endpoint.
 
-- `$client->users()->unreadItems(string $roomId[, string $userId]): array`
+- `$client->users->unreadItems(string $roomId[, string $userId]): array`
 
 There is an additional endpoint nested under rooms that you can use to mark chat messages as read
 
-- `$client->users()->markAsRead(string $roomId, array $messageIds[, string $userId]): array`
+- `$client->users->markAsRead(string $roomId, array $messageIds[, string $userId]): array`
 
 List of the user's GitHub Organisations and their respective Room if available.
 
-- `$client->users()->orgs([string $userId]): array`
+- `$client->users->orgs([string $userId]): array`
 
 List of the user's GitHub Repositories and their respective Room if available.
 
-- `$client->users()->repos([string $userId]): array`
+- `$client->users->repos([string $userId]): array`
 
 List of Gitter channels nested under the user.
 
-- `$client->users()->channels([string $userId]): array`
+- `$client->users->channels([string $userId]): array`
 
 ## Custom WebHook Notifications
 

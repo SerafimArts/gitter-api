@@ -15,7 +15,7 @@ class UsersTest extends TestCase
 {
     public function testCurrentUser()
     {
-        $this->assertInternalType('array', $this->client()->users()->current());
-        $this->assertEquals($this->userId(), $this->client()->users()->current()['id'] ?? null);
+        $this->assertInternalType('array', $this->client()->users->current());
+        $this->assertEquals($this->userId(), $this->client()->users->current()['id'] ?? null);
     }
 }

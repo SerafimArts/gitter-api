@@ -47,7 +47,7 @@ trait UnitSupport
      */
     public function userId(): string
     {
-        return $this->client()->users()->currentUserId();
+        return $this->client()->authId();
     }
 
     private $client;

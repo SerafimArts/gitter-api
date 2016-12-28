@@ -21,7 +21,7 @@ use Gitter\Route;
  *
  * @package Gitter\Resources
  */
-class Groups extends AbstractResource
+class Groups extends AbstractResource implements \IteratorAggregate
 {
     const TYPE_ONE_TO_ONE   = 'ONE_TO_ONE';
     const TYPE_GITHUB_REPO  = 'GH_REPO';
@@ -32,9 +32,11 @@ class Groups extends AbstractResource
      * List groups the current user is in.
      * Parameters: none
      *
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function all()
+    public function all(): array
     {
         return $this->fetch(Route::get('groups'));
     }
@@ -43,10 +45,26 @@ class Groups extends AbstractResource
      * List of rooms nested under the specified group.
      *
      * @param string $groupId
-     * @return mixed
+     * @return array
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function rooms(string $groupId)
+    public function rooms(string $groupId): array
     {
         return $this->fetch(Route::get('groups/{groupId}/rooms')->with('groupId', $groupId));
+    }
+
+    /**
+     * @return \Generator
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     */
+    public function getIterator(): \Generator
+    {
+        $groups = $this->all();
+
+        foreach ($groups as $i => $group) {
+            yield $i => $group;
+        }
     }
 }

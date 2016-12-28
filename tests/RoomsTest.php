@@ -27,7 +27,7 @@ class RoomsTest extends TestCase
      */
     public function setUp()
     {
-        $this->rooms = $this->client()->rooms();
+        $this->rooms = $this->client()->rooms;
 
         $this->assertInternalType('array', $this->rooms->join($this->debugRoomId()));
     }
@@ -144,16 +144,16 @@ class RoomsTest extends TestCase
 
         $message = [];
 
-        $client->rooms()->messages($this->debugRoomId())->subscribe(function ($data) use (&$message, $client) {
+        $client->rooms->messages($this->debugRoomId())->subscribe(function ($data) use (&$message, $client) {
             $message = $data;
             $client->loop()->stop();
         });
 
-        $client->loop()->addTimer(1, function () use ($client) {
-            $client->messages()->create($this->debugRoomId(), 'DEBUG');
+        $client->loop->addTimer(1, function () use ($client) {
+            $client->messages->create($this->debugRoomId(), 'DEBUG');
         });
 
-        $client->loop()->addTimer(10, function () {
+        $client->loop->addTimer(10, function () {
             throw new TimeoutException('Test execution timeout');
         });
 
