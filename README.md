@@ -7,7 +7,7 @@
 [![Total Downloads](https://poser.pugx.org/serafim/gitter-api/downloads)](https://packagist.org/packages/serafim/gitter-api)
 
 
-- [Version 3.0.x](https://github.com/SerafimArts/gitter-api/commit/5bf22f2b5bbc517600937fbbaa44037a89688a82)
+- [Version 3.0.x](https://github.com/SerafimArts/gitter-api/tree/5bf22f2b5bbc517600937fbbaa44037a89688a82)
 - [Version 2.1.x](https://github.com/SerafimArts/gitter-api/tree/967ef646afa3181fbb10ec6669538c4911866731)
 - [Version 2.0.x](https://github.com/SerafimArts/gitter-api/tree/8ad7f4d06c5f8196ada5798799cd8c1d5f55a974)
 - [Version 1.1.x](https://github.com/SerafimArts/gitter-api/tree/26c3640a1d933db8ad27bd3c10f8bc42ff936c47)
