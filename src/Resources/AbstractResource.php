@@ -13,6 +13,7 @@ use Gitter\Adapters\StreamAdapter;
 use Gitter\Route;
 use Gitter\Client;
 use Gitter\Support\Observer;
+use GuzzleHttp\Exception\ClientException;
 use Serafim\Evacuator\Evacuator;
 use GuzzleHttp\Exception\RequestException;
 
@@ -47,8 +48,10 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * @param Route $route
      * @return array|mixed
+     * @throws \GuzzleHttp\Exception\ClientException
      * @throws \GuzzleHttp\Exception\RequestException
      * @throws \Throwable
+     * @throws \Exception
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
@@ -57,6 +60,19 @@ abstract class AbstractResource implements ResourceInterface
         $rescue = (new Evacuator(function () use ($route) {
             return (array)$this->viaHttp()->request($route);
         }))
+            // If response has status code 4xx
+            ->onError(function (ClientException $e) {
+                $this->client->logger->error(get_class($e) . '  ' . $e->getMessage());
+
+                switch ($e->getResponse()->getStatusCode()) {
+                    case 429: // 429 Too Many Requests
+                        sleep(2);
+                        return null;
+                }
+
+                throw $e;
+            })
+            // On internal errors
             ->onError(function (RequestException $e) {
                 $this->client->logger->error($e->getMessage());
 
@@ -65,8 +81,10 @@ abstract class AbstractResource implements ResourceInterface
                     throw $e;
                 }
             })
+            // Other
             ->onError(function (\Exception $e) {
                 $this->client->logger->error($e->getMessage());
+                throw $e;
             })
             ->retries($this->client->getRetriesCount())
             ->invoke();
