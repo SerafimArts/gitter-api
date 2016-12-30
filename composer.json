@@ -24,7 +24,8 @@
         "guzzlehttp/guzzle": ">=5.0",
         "react/event-loop": "^0.4",
         "clue/buzz-react": "^1.0",
-        "psr/log": "~1.0"
+        "psr/log": "~1.0",
+        "serafim/evacuator": "~3.0"
     },
     "require-dev": {
         "monolog/monolog": "~1.0",

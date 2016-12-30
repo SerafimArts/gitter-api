@@ -20,6 +20,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
+use Serafim\Evacuator\Evacuator;
 
 /**
  * Class Client
@@ -63,6 +64,11 @@ class Client
     private $storage = [];
 
     /**
+     * @var int
+     */
+    private $retries = Evacuator::INFINITY_RETRIES;
+
+    /**
      * Client constructor.
      * @param string $token
      * @param LoggerInterface $logger
@@ -75,6 +81,25 @@ class Client
         if (null === ($this->logger = $logger)) {
             $this->logger = new NullLogger();
         }
+    }
+
+    /**
+     * @param int $count
+     * @return Client
+     */
+    public function retries(int $count): Client
+    {
+        $this->retries = $count;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRetriesCount(): int
+    {
+        return $this->retries;
     }
 
     /**

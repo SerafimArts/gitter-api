@@ -13,6 +13,8 @@ use Gitter\Adapters\StreamAdapter;
 use Gitter\Route;
 use Gitter\Client;
 use Gitter\Support\Observer;
+use Serafim\Evacuator\Evacuator;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * Class AbstractResource
@@ -45,22 +47,49 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * @param Route $route
      * @return array|mixed
+     * @throws \GuzzleHttp\Exception\RequestException
+     * @throws \Throwable
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
     protected function fetch(Route $route): array
     {
-        return (array)$this->viaHttp()->request($route);
+        $rescue = (new Evacuator(function () use ($route) {
+            return (array)$this->viaHttp()->request($route);
+        }))
+            ->onError(function (RequestException $e) {
+                $this->client->logger->error($e->getMessage());
+
+                // Throws request exception if SSL error
+                if (false !== strpos($e->getMessage(), 'SSL certificate problem')) {
+                    throw $e;
+                }
+            })
+            ->onError(function (\Exception $e) {
+                $this->client->logger->error($e->getMessage());
+            })
+            ->retries($this->client->getRetriesCount())
+            ->invoke();
+
+        return $rescue;
     }
 
     /**
      * @param Route $route
      * @return Observer
+     * @throws \Throwable
      * @throws \InvalidArgumentException
      */
     protected function stream(Route $route): Observer
     {
-        return $this->viaStream()->request($route);
+        return (new Evacuator(function() use ($route) {
+            return $this->viaStream()->request($route);
+        }))
+            ->onError(function (\Exception $e) {
+                $this->client->logger->error($e->getMessage());
+            })
+            ->retries($this->client->getRetriesCount())
+            ->invoke();
     }
 
     /**
