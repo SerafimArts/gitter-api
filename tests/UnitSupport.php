@@ -21,14 +21,6 @@ trait UnitSupport
     /**
      * @return string
      */
-    public function token(): string
-    {
-        return $_ENV['token'] ?? $_SERVER['token'] ?? '';
-    }
-
-    /**
-     * @return string
-     */
     public function debugRoomId(): string
     {
         return $_ENV['debug_room_id'] ?? $_SERVER['debug_room_id'] ?? '';
@@ -50,20 +42,29 @@ trait UnitSupport
         return $this->client()->authId();
     }
 
-    private $client;
-    
     /**
      * @return Client
      */
     public function client()
     {
-        if ($this->client === null) {
-            $logger = new Logger('phpunit');
-            $logger->pushHandler(new StreamHandler(STDOUT, Logger::DEBUG));
+        $logger = new Logger('phpunit');
+        $logger->pushHandler(new StreamHandler(STDOUT, Logger::DEBUG));
 
-            $this->client = new Client($this->token(), $logger);
+        $client = new Client($this->token(), $logger);
+
+
+        if (0 === stripos(PHP_OS, 'WIN')) { // Windows SSL bugfix
+            $client->viaHttp()->setOptions(['verify' => false]);
         }
 
-        return $this->client;
+        return $client;
+    }
+
+    /**
+     * @return string
+     */
+    public function token(): string
+    {
+        return $_ENV['token'] ?? $_SERVER['token'] ?? '';
     }
 }

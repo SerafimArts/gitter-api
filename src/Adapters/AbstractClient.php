@@ -39,7 +39,7 @@ abstract class AbstractClient implements AdapterInterface
      */
     public function setOptions(array $options = []): AdapterInterface
     {
-        $this->options = $options;
+        $this->options = array_merge_recursive($this->options, $options);
 
         return $this;
     }

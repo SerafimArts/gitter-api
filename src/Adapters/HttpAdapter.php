@@ -34,21 +34,9 @@ class HttpAdapter extends AbstractClient implements SyncAdapterInterface
      */
     public function __construct(Client $client)
     {
-        $this->client = $client;
-        $this->setOptions();
-    }
-
-    /**
-     * @param array $options
-     * @return AdapterInterface
-     */
-    public function setOptions(array $options = []): AdapterInterface
-    {
-        parent::setOptions($this->injectToken($this->client, $options));
-
-        $this->guzzle = new Guzzle($this->options);
-
-        return $this;
+        $this->client  = $client;
+        $this->options = $this->injectToken($client, []);
+        $this->guzzle  = new Guzzle($this->options);
     }
 
     /**
@@ -82,8 +70,8 @@ class HttpAdapter extends AbstractClient implements SyncAdapterInterface
         if ($options['body'] ?? false) {
             $this->debugLog($this->client, '    -> body ' . $options['body']);
         }
-        // End log request
 
+        // End log request
         $response = $this->guzzle->request($method, $uri, $options);
 
         // Log response
@@ -106,7 +94,7 @@ class HttpAdapter extends AbstractClient implements SyncAdapterInterface
             $options['body'] = $route->getBody();
         }
 
-        return $options;
+        return array_merge($this->options, $options);
     }
 
     /**

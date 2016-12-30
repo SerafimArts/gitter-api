@@ -69,6 +69,16 @@ class Client
     private $retries = Evacuator::INFINITY_RETRIES;
 
     /**
+     * @var HttpAdapter|null
+     */
+    private $http;
+
+    /**
+     * @var StreamAdapter|null
+     */
+    private $streaming;
+
+    /**
      * Client constructor.
      * @param string $token
      * @param LoggerInterface $logger
@@ -116,7 +126,11 @@ class Client
      */
     public function viaHttp(): SyncAdapterInterface
     {
-        return new HttpAdapter($this);
+        if ($this->http === null) {
+            $this->http = new HttpAdapter($this);
+        }
+
+        return $this->http;
     }
 
     /**
@@ -124,7 +138,11 @@ class Client
      */
     public function viaStream(): StreamAdapterInterface
     {
-        return new StreamAdapter($this, $this->loop);
+        if ($this->streaming === null) {
+            $this->streaming = new StreamAdapter($this, $this->loop);
+        }
+
+        return $this->streaming;
     }
 
     /**
