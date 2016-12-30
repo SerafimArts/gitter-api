@@ -72,15 +72,6 @@ abstract class AbstractResource implements ResourceInterface
 
                 throw $e;
             })
-            // On internal errors
-            ->onError(function (RequestException $e) {
-                $this->client->logger->error($e->getMessage());
-
-                // Throws request exception if SSL error
-                if (false !== strpos($e->getMessage(), 'SSL certificate problem')) {
-                    throw $e;
-                }
-            })
             // Other
             ->onError(function (\Exception $e) {
                 $this->client->logger->error($e->getMessage());
