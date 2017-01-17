@@ -37,13 +37,11 @@ class Messages extends AbstractResource
      *
      * @param string $roomId Room id
      * @param string|null $query Optional search query
+     * @param string $beforeId
      * @return \Generator
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
      */
-    public function all(string $roomId, string $query = null): \Generator
+    public function all(string $roomId, string $query = null, string $beforeId = null): \Generator
     {
-        $beforeId = null;
         $limit    = 100;
 
         do {
