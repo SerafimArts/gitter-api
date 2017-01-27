@@ -139,12 +139,12 @@ class Route
 
     /**
      * @param string $parameter
-     * @param string $value
+     * @param string|int $value
      * @return $this|Route
      */
-    public function with(string $parameter, string $value): Route
+    public function with(string $parameter, $value): Route
     {
-        $this->parameters[$parameter] = $value;
+        $this->parameters[$parameter] = (string)$value;
 
         return $this;
     }
