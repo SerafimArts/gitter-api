@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * This file is part of GitterApi package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types=1);
+
 namespace Gitter\Resources;
 
 use Gitter\Adapters\AdapterInterface;
@@ -15,7 +17,6 @@ use Gitter\Client;
 use Gitter\Support\Observer;
 use GuzzleHttp\Exception\ClientException;
 use Serafim\Evacuator\Evacuator;
-use GuzzleHttp\Exception\RequestException;
 
 /**
  * Class AbstractResource
@@ -49,10 +50,9 @@ abstract class AbstractResource implements ResourceInterface
      * @param Route $route
      * @return array|mixed
      * @throws \GuzzleHttp\Exception\ClientException
-     * @throws \GuzzleHttp\Exception\RequestException
-     * @throws \Throwable
-     * @throws \Exception
      * @throws \RuntimeException
+     * @throws \Exception
+     * @throws \Throwable
      * @throws \InvalidArgumentException
      */
     protected function fetch(Route $route): array

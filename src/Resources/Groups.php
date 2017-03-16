@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * This file is part of GitterApi package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types=1);
+
 namespace Gitter\Resources;
 
 use Gitter\Route;
@@ -33,7 +35,10 @@ class Groups extends AbstractResource implements \IteratorAggregate
      * Parameters: none
      *
      * @return array
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
      * @throws \RuntimeException
+     * @throws \Exception
      * @throws \InvalidArgumentException
      */
     public function all(): array
@@ -46,7 +51,10 @@ class Groups extends AbstractResource implements \IteratorAggregate
      *
      * @param string $groupId
      * @return array
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
      * @throws \RuntimeException
+     * @throws \Exception
      * @throws \InvalidArgumentException
      */
     public function rooms(string $groupId): array
@@ -56,7 +64,10 @@ class Groups extends AbstractResource implements \IteratorAggregate
 
     /**
      * @return \Generator
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
      * @throws \RuntimeException
+     * @throws \Exception
      * @throws \InvalidArgumentException
      */
     public function getIterator(): \Generator

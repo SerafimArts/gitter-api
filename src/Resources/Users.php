@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * This file is part of GitterApi package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types=1);
+
 namespace Gitter\Resources;
 
 use Gitter\Route;
@@ -33,6 +35,9 @@ class Users extends AbstractResource
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function current(): array
     {
@@ -51,7 +56,10 @@ class Users extends AbstractResource
 
     /**
      * @return string
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
      * @throws \RuntimeException
+     * @throws \Exception
      * @throws \InvalidArgumentException
      */
     public function currentUserId(): string
@@ -66,6 +74,9 @@ class Users extends AbstractResource
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function rooms(string $userId = null): array
     {
@@ -83,6 +94,9 @@ class Users extends AbstractResource
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function unreadItems(string $roomId, string $userId = null): array
     {
@@ -101,6 +115,9 @@ class Users extends AbstractResource
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function markAsRead(string $roomId, array $messageIds, string $userId = null): array
     {
@@ -118,6 +135,9 @@ class Users extends AbstractResource
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function orgs(string $userId = null): array
     {
@@ -136,6 +156,9 @@ class Users extends AbstractResource
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function repos(string $userId = null): array
     {
@@ -152,6 +175,9 @@ class Users extends AbstractResource
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function channels(string $userId = null): array
     {

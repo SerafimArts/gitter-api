@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * This file is part of GitterApi package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types=1);
+
 namespace Gitter\Resources;
 
 use Gitter\Route;
@@ -62,6 +64,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function all(string $query = null): array
     {
@@ -84,6 +89,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function joinUser(string $roomId, string $userId): array
     {
@@ -100,6 +108,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function join(string $roomId): array
     {
@@ -119,6 +130,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function joinByName(string $name): array
     {
@@ -130,6 +144,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function findByName(string $name): array
     {
@@ -144,6 +161,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function kick(string $roomId, string $userId): array
     {
@@ -161,6 +181,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function leave(string $roomId): array
     {
@@ -175,6 +198,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return mixed
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function topic(string $roomId, string $topic): array
     {
@@ -193,6 +219,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function searchIndex(string $roomId, bool $enabled = true): array
     {
@@ -211,7 +240,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     *
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function tags(string $roomId, array $tags = []): array
     {
@@ -232,6 +263,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function delete(string $roomId): array
     {
@@ -249,6 +283,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return \Generator
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function users(string $roomId, string $query = null): \Generator
     {
@@ -279,6 +316,8 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @param string $roomId
      * @return Observer
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function events(string $roomId): Observer
     {
@@ -296,6 +335,8 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @param string $roomId
      * @return Observer
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function messages(string $roomId): Observer
     {
@@ -310,6 +351,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return \Generator
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \Throwable
+     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function getIterator(): \Generator
     {

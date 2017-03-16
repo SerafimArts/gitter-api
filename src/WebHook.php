@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * This file is part of GitterApi package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types=1);
+
 namespace Gitter;
 
 use Gitter\Resources\AbstractResource;
@@ -29,9 +31,9 @@ class WebHook extends AbstractResource
     private $level = self::HOOK_LEVEL_INFO;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private $icon = null;
+    private $icon;
 
     /**
      * WebHook constructor.
@@ -64,6 +66,9 @@ class WebHook extends AbstractResource
     /**
      * @param string $message
      * @return array
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
+     * @throws \Exception
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
@@ -75,6 +80,9 @@ class WebHook extends AbstractResource
     /**
      * @param string $message
      * @return array
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
+     * @throws \Exception
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
@@ -97,6 +105,9 @@ class WebHook extends AbstractResource
     /**
      * @param string $message
      * @return array
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
+     * @throws \Exception
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */

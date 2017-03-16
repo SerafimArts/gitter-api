@@ -1,10 +1,12 @@
-<?php declare(strict_types = 1);
+<?php
 /**
  * This file is part of GitterApi package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+declare(strict_types=1);
+
 namespace Gitter;
 
 use Gitter\Adapters\AdapterInterface;
@@ -41,7 +43,7 @@ class Client
     /**
      * @var string
      */
-    const VERSION = '4.0.0';
+    const VERSION = '4.0.6';
 
     /**
      * @var string
@@ -66,7 +68,7 @@ class Client
     /**
      * @var int
      */
-    private $retries = Evacuator::INFINITY_RETRIES;
+    private $retries = 100;
 
     /**
      * @var HttpAdapter|null
@@ -91,6 +93,17 @@ class Client
         if (null === ($this->logger = $logger)) {
             $this->logger = new NullLogger();
         }
+    }
+
+    /**
+     * @param string $token
+     * @return Client
+     */
+    public function updateToken(string $token): Client
+    {
+        $this->token = $token;
+
+        return $this;
     }
 
     /**
@@ -228,6 +241,9 @@ class Client
 
     /**
      * @return array
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
+     * @throws \Exception
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
@@ -238,6 +254,9 @@ class Client
 
     /**
      * @return string
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
+     * @throws \Exception
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      */
