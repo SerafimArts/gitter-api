@@ -16,10 +16,4 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
-
-    <filter>
-        <whitelist>
-            <directory>tests</directory>
-        </whitelist>
-    </filter>
 </phpunit>
