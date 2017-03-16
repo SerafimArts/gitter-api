@@ -64,10 +64,9 @@ class Messages extends AbstractResource
     public function allBeforeId(string $roomId, string $beforeId = null, string $query = null)
     {
         $limit = 100;
+        $route = $this->routeForMessagesIterator($roomId, $limit, $query);
 
         do {
-            $route = $this->routeForMessagesIterator($roomId, $limit, $query);
-
             if ($beforeId !== null) {
                 $route->with('beforeId', $beforeId);
             }
@@ -75,10 +74,10 @@ class Messages extends AbstractResource
             $response = array_reverse($this->fetch($route));
 
             foreach ($response as $message) {
-                $beforeId = (string)$message['id'];
                 yield $message;
             }
 
+            $beforeId = count($response) > 0 ? end($response)['id'] : null;
         } while (count($response) >= $limit);
     }
 
@@ -117,10 +116,9 @@ class Messages extends AbstractResource
     public function allAfterId(string $roomId, string $afterId = null, string $query = null)
     {
         $limit = 100;
+        $route = $this->routeForMessagesIterator($roomId, $limit, $query);
 
         do {
-            $route = $this->routeForMessagesIterator($roomId, $limit, $query);
-
             if ($afterId !== null) {
                 $route->with('afterId', $afterId);
             }
@@ -128,9 +126,10 @@ class Messages extends AbstractResource
             $response = (array)$this->fetch($route);
 
             foreach ($response as $message) {
-                $afterId = (string)$message['id'];
                 yield $message;
             }
+
+            $afterId = count($response) > 0 ? end($response)['id'] : null;
         } while (count($response) >= $limit);
     }
 
