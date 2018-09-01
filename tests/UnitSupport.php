@@ -36,6 +36,9 @@ trait UnitSupport
 
     /**
      * @return string
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Throwable
      */
     public function userId(): string
     {
@@ -44,6 +47,7 @@ trait UnitSupport
 
     /**
      * @return Client
+     * @throws \InvalidArgumentException
      */
     public function client()
     {

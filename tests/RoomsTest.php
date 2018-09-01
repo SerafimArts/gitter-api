@@ -24,6 +24,9 @@ class RoomsTest extends TestCase
 
     /**
      * @return void
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Throwable
      */
     public function setUp()
     {
@@ -34,6 +37,9 @@ class RoomsTest extends TestCase
 
     /**
      * @return void
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Throwable
      */
     public function testAllAction()
     {
@@ -42,6 +48,9 @@ class RoomsTest extends TestCase
 
     /**
      * @return void
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Throwable
      */
     public function testLeaveAndJoinAction()
     {
@@ -52,6 +61,9 @@ class RoomsTest extends TestCase
 
     /**
      * @return void
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Throwable
      */
     public function testFindByNameAction()
     {
@@ -60,6 +72,9 @@ class RoomsTest extends TestCase
 
     /**
      * @return void
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Throwable
      */
     public function testKickAction()
     {
@@ -70,6 +85,9 @@ class RoomsTest extends TestCase
 
     /**
      * @return void
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Throwable
      */
     public function testUpdateTopicAction()
     {
@@ -89,6 +107,9 @@ class RoomsTest extends TestCase
 
     /**
      * @return void
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Throwable
      */
     public function testUpdateIndexAction()
     {
@@ -106,6 +127,9 @@ class RoomsTest extends TestCase
 
     /**
      * @return void
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Throwable
      */
     public function testUpdateTagsAction()
     {
@@ -128,6 +152,9 @@ class RoomsTest extends TestCase
 
     /**
      * @return void
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Throwable
      */
     public function testUsersListAction()
     {
@@ -137,6 +164,8 @@ class RoomsTest extends TestCase
 
     /**
      * @return void
+     * @throws \InvalidArgumentException
+     * @throws \Throwable
      */
     public function testMessagesEvent()
     {
