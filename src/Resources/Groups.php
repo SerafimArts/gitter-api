@@ -36,8 +36,6 @@ class Groups extends AbstractResource implements \IteratorAggregate
      *
      * @return array
      * @throws \Throwable
-     * @throws \GuzzleHttp\Exception\ClientException
-     * @throws \RuntimeException
      * @throws \Exception
      * @throws \InvalidArgumentException
      */
@@ -52,8 +50,6 @@ class Groups extends AbstractResource implements \IteratorAggregate
      * @param string $groupId
      * @return array
      * @throws \Throwable
-     * @throws \GuzzleHttp\Exception\ClientException
-     * @throws \RuntimeException
      * @throws \Exception
      * @throws \InvalidArgumentException
      */
@@ -65,8 +61,6 @@ class Groups extends AbstractResource implements \IteratorAggregate
     /**
      * @return \Generator
      * @throws \Throwable
-     * @throws \GuzzleHttp\Exception\ClientException
-     * @throws \RuntimeException
      * @throws \Exception
      * @throws \InvalidArgumentException
      */

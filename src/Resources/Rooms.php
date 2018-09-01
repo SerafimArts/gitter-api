@@ -62,11 +62,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      *
      * @param string $query Search query
      * @return array
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function all(string $query = null): array
     {
@@ -87,11 +85,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @param string $roomId Required ID of the room you would like to join
      * @param string $userId Required ID of the user
      * @return array
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function joinUser(string $roomId, string $userId): array
     {
@@ -128,11 +124,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      *
      * @param string $name Required URI of the room you would like to join
      * @return array
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function joinByName(string $name): array
     {
@@ -142,11 +136,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
     /**
      * @param string $name
      * @return array
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function findByName(string $name): array
     {
@@ -159,11 +151,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @param string $roomId Required ID of the room
      * @param string $userId Required ID of the user
      * @return array
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function kick(string $roomId, string $userId): array
     {
@@ -196,11 +186,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @param string $roomId Room id
      * @param string $topic Room topic
      * @return mixed
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function topic(string $roomId, string $topic): array
     {
@@ -217,11 +205,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @param string $roomId Room id
      * @param bool $enabled Enable or disable room indexing
      * @return array
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function searchIndex(string $roomId, bool $enabled = true): array
     {
@@ -238,11 +224,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @param string $roomId Room id
      * @param array $tags Target tags
      * @return array
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function tags(string $roomId, array $tags = []): array
     {
@@ -261,11 +245,9 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      *
      * @param string $roomId Target room id
      * @return array
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function delete(string $roomId): array
     {
@@ -281,16 +263,14 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @param string $roomId Target room id
      * @param string $query Optional query for users search
      * @return \Generator
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function users(string $roomId, string $query = null): \Generator
     {
-        $skip    = 0;
-        $limit   = 30;
+        $skip  = 0;
+        $limit = 30;
 
         do {
             $route = Route::get('rooms/{roomId}/users')
@@ -306,7 +286,7 @@ class Rooms extends AbstractResource implements \IteratorAggregate
 
             yield from $response = $this->fetch($route);
 
-        } while(count($response) >= $limit && ($skip += $limit));
+        } while(\count($response) >= $limit && ($skip += $limit));
     }
 
     /**
@@ -317,15 +297,14 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return Observer
      * @throws \InvalidArgumentException
      * @throws \Throwable
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function events(string $roomId): Observer
     {
         return $this->stream(
-                Route::get('rooms/{roomId}/events')
-                    ->with('roomId', $roomId)
-                    ->toStream()
-            );
+            Route::get('rooms/{roomId}/events')
+                ->with('roomId', $roomId)
+                ->toStream()
+        );
     }
 
     /**
@@ -336,24 +315,21 @@ class Rooms extends AbstractResource implements \IteratorAggregate
      * @return Observer
      * @throws \InvalidArgumentException
      * @throws \Throwable
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function messages(string $roomId): Observer
     {
         return $this->stream(
-                Route::get('rooms/{roomId}/chatMessages')
-                    ->with('roomId', $roomId)
-                    ->toStream()
-            );
+            Route::get('rooms/{roomId}/chatMessages')
+                ->with('roomId', $roomId)
+                ->toStream()
+        );
     }
 
     /**
      * @return \Generator
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function getIterator(): \Generator
     {

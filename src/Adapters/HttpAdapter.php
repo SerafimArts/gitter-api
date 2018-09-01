@@ -33,6 +33,8 @@ class HttpAdapter extends AbstractClient implements SyncAdapterInterface
     /**
      * HttpAdapter constructor.
      * @param Client $client
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      */
     public function __construct(Client $client)
     {
@@ -46,7 +48,7 @@ class HttpAdapter extends AbstractClient implements SyncAdapterInterface
      * @param array $options
      * @return array
      */
-    private function injectToken(Client $client, array $options)
+    private function injectToken(Client $client, array $options): array
     {
         $options['headers'] = array_merge(
             $options['headers'] ?? [],
@@ -61,6 +63,7 @@ class HttpAdapter extends AbstractClient implements SyncAdapterInterface
      * @return array
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function request(Route $route): array
     {

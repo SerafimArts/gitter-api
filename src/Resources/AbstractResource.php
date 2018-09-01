@@ -49,8 +49,6 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * @param Route $route
      * @return array|mixed
-     * @throws \GuzzleHttp\Exception\ClientException
-     * @throws \RuntimeException
      * @throws \Exception
      * @throws \Throwable
      * @throws \InvalidArgumentException
@@ -62,7 +60,7 @@ abstract class AbstractResource implements ResourceInterface
         }))
             // If response has status code 4xx
             ->onError(function (ClientException $e) {
-                $this->client->logger->error(get_class($e) . '  ' . $e->getMessage());
+                $this->client->logger->error(\get_class($e) . '  ' . $e->getMessage());
 
                 switch ($e->getResponse()->getStatusCode()) {
                     case 429: // 429 Too Many Requests
@@ -103,6 +101,7 @@ abstract class AbstractResource implements ResourceInterface
 
     /**
      * @return AdapterInterface|HttpAdapter
+     * @throws \InvalidArgumentException
      */
     protected function viaHttp(): HttpAdapter
     {

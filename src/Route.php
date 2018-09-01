@@ -133,7 +133,7 @@ class Route
     public function method(string $method = null): string
     {
         if ($method !== null) {
-            $this->method = strtoupper($method);
+            $this->method = \strtoupper($method);
         }
 
         return $this->method;
@@ -181,8 +181,8 @@ class Route
      */
     public function getBody()
     {
-        if (count($this->body)) {
-            return json_encode($this->body);
+        if (\count($this->body)) {
+            return \json_encode($this->body);
         }
 
         return null;

@@ -37,11 +37,9 @@ class Messages extends AbstractResource
      * @param string $roomId Room id
      * @param string|null $query Optional search query
      * @return \Generator
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function all(string $roomId, string $query = null): \Generator
     {
@@ -56,9 +54,7 @@ class Messages extends AbstractResource
      * @param string|null $query
      * @return \Generator
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      * @throws \InvalidArgumentException
-     * @throws \RuntimeException
      * @throws \Throwable
      */
     public function allBeforeId(string $roomId, string $beforeId = null, string $query = null)
@@ -71,14 +67,14 @@ class Messages extends AbstractResource
                 $route->with('beforeId', $beforeId);
             }
 
-            $response = array_reverse($this->fetch($route));
+            $response = \array_reverse($this->fetch($route));
 
             foreach ($response as $message) {
                 yield $message;
             }
 
-            $beforeId = count($response) > 0 ? end($response)['id'] : null;
-        } while (count($response) >= $limit);
+            $beforeId = \count($response) > 0 ? \end($response)['id'] : null;
+        } while (\count($response) >= $limit);
     }
 
     /**
@@ -108,9 +104,7 @@ class Messages extends AbstractResource
      * @param string|null $query
      * @return \Generator
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      * @throws \InvalidArgumentException
-     * @throws \RuntimeException
      * @throws \Throwable
      */
     public function allAfterId(string $roomId, string $afterId = null, string $query = null)
@@ -129,8 +123,8 @@ class Messages extends AbstractResource
                 yield $message;
             }
 
-            $afterId = count($response) > 0 ? end($response)['id'] : null;
-        } while (count($response) >= $limit);
+            $afterId = \count($response) > 0 ? end($response)['id'] : null;
+        } while (\count($response) >= $limit);
     }
 
     /**
@@ -139,11 +133,9 @@ class Messages extends AbstractResource
      * @param string $roomId Room id
      * @param string $messageId Message id
      * @return array
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function find(string $roomId, string $messageId): array
     {
@@ -159,11 +151,9 @@ class Messages extends AbstractResource
      * @param string $roomId Room id
      * @param string $content Message body
      * @return array
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function create(string $roomId, string $content): array
     {
@@ -198,11 +188,9 @@ class Messages extends AbstractResource
      * @param string $messageId Message id
      * @param string $content New message body
      * @return array
-     * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @throws \Throwable
      * @throws \Exception
-     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function update(string $roomId, string $messageId, string $content): array
     {

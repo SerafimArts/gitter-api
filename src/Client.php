@@ -22,7 +22,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
-use Serafim\Evacuator\Evacuator;
 
 /**
  * Class Client
@@ -88,7 +87,7 @@ class Client
     public function __construct(string $token, LoggerInterface $logger = null)
     {
         $this->token = $token;
-        $this->loop = Factory::create();
+        $this->loop  = Factory::create();
 
         if (null === ($this->logger = $logger)) {
             $this->logger = new NullLogger();
@@ -136,6 +135,7 @@ class Client
 
     /**
      * @return SyncAdapterInterface|AdapterInterface
+     * @throws \InvalidArgumentException
      */
     public function viaHttp(): SyncAdapterInterface
     {
@@ -206,7 +206,7 @@ class Client
             return null;
         };
 
-        if (!isset($this->storage[$resource])) {
+        if (! isset($this->storage[$resource])) {
             $this->storage[$resource] = $resolve($resource);
         }
 
@@ -237,32 +237,6 @@ class Client
             default:
                 $this->{$name} = $value;
         }
-    }
-
-    /**
-     * @return array
-     * @throws \Throwable
-     * @throws \GuzzleHttp\Exception\ClientException
-     * @throws \Exception
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
-     */
-    public function authUser(): array
-    {
-        return $this->users->current();
-    }
-
-    /**
-     * @return string
-     * @throws \Throwable
-     * @throws \GuzzleHttp\Exception\ClientException
-     * @throws \Exception
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
-     */
-    public function authId(): string
-    {
-        return $this->users->currentUserId();
     }
 
     /**
@@ -305,6 +279,32 @@ class Client
     }
 
     /**
+     * @return array
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
+     * @throws \Exception
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     */
+    public function authUser(): array
+    {
+        return $this->users->current();
+    }
+
+    /**
+     * @return string
+     * @throws \Throwable
+     * @throws \GuzzleHttp\Exception\ClientException
+     * @throws \Exception
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     */
+    public function authId(): string
+    {
+        return $this->users->currentUserId();
+    }
+
+    /**
      * @param string $name
      * @throws \LogicException
      */
@@ -332,9 +332,11 @@ class Client
      */
     public function __isset(string $name): bool
     {
-        if (in_array($name, ['users', 'groups', 'messages', 'rooms', 'loop', 'token'], true)) {
+        if (\in_array($name, ['users', 'groups', 'messages', 'rooms', 'loop', 'token'], true)) {
             return true;
-        } elseif ($name === 'logger') {
+        }
+
+        if ($name === 'logger') {
             return $this->logger !== null;
         }
 
