@@ -22,7 +22,8 @@
         "ext-json": "*",
         "ext-mbstring": "*",
         "guzzlehttp/guzzle": ">=6.0",
-        "react/event-loop": "^0.4",
+        "react/event-loop": "^0.5",
+        "react/dns": "~0.4",
         "clue/buzz-react": "^1.0",
         "psr/log": "~1.0",
         "serafim/evacuator": "~3.0"
