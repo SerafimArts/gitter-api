@@ -19,6 +19,11 @@ use Psr\Log\LoggerInterface;
 class JsonStream
 {
     /**
+     * @var string[]
+     */
+    const JSON_STARTS_WITH = ['{', '['];
+
+    /**
      * @var int
      */
     const BUFFER_MAX_SIZE = 2 ** 14;
@@ -26,7 +31,7 @@ class JsonStream
     /**
      * @var string
      */
-    private $bufferSize = 0;
+    private $bufferSize;
 
     /**
      * @var string
@@ -70,11 +75,20 @@ class JsonStream
      */
     private function checkSize()
     {
-        if ($this->bufferSize > 0 && strlen($this->buffer) > $this->bufferSize) {
+        if ($this->bufferSize > 0 && \strlen($this->buffer) > $this->bufferSize) {
             throw new \OutOfBoundsException(
-                sprintf('Memory leak detected . Buffer size out of %s bytes', $this->bufferSize)
+                sprintf('Memory leak detected. Buffer size out of %s bytes', $this->bufferSize)
             );
         }
+    }
+
+    /**
+     * @param string $data
+     * @return bool
+     */
+    private function shouldStarts(string $data): bool
+    {
+        return $this->buffer === '' && \in_array($data[0], self::JSON_STARTS_WITH, true);;
     }
 
     /**
@@ -85,7 +99,7 @@ class JsonStream
     public function push(string $data, \Closure $callback = null)
     {
         // Buffer are empty and input starts with "[" or "{"
-        $canBeBuffered = $this->buffer === '' && in_array($data[0], ['[', '{'], true);
+        $canBeBuffered = $this->shouldStarts($data);
 
         // Data can be starts buffering
         if ($canBeBuffered) {
@@ -96,12 +110,10 @@ class JsonStream
         if ($canBeBuffered || $this->buffer !== '') {
             $this->buffer .= $data;
 
-            // Try to compile
-            $trimmed = rtrim($data);
-            if ($trimmed[strlen($trimmed) - 1] === $this->endsWith) {
-                $object = json_decode($this->buffer, true);
+            if ($this->isEnds($data)) {
+                $object = \json_decode($this->buffer, true);
 
-                if (json_last_error() === JSON_ERROR_NONE) {
+                if (\json_last_error() === JSON_ERROR_NONE) {
                     $this->buffer = '';
 
                     if ($callback !== null) {
@@ -114,6 +126,17 @@ class JsonStream
         }
 
         return null;
+    }
+
+    /**
+     * @param string $text
+     * @return bool
+     */
+    private function isEnds(string $text): bool
+    {
+        $text = \trim($text);
+
+        return $text && $text[\strlen($text) - 1] === $this->endsWith;
     }
 
     /**
