@@ -21,7 +21,7 @@
         "ext-sockets": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "guzzlehttp/guzzle": ">=5.0",
+        "guzzlehttp/guzzle": ">=6.0",
         "react/event-loop": "^0.4",
         "clue/buzz-react": "^1.0",
         "psr/log": "~1.0",
